@@ -1,0 +1,4 @@
+LIBRARY   Ffmpeg_for_tcl
+EXPORTS
+	Ffmpeg_for_tcl_SafeInit
+	Ffmpeg_for_tcl_Init
