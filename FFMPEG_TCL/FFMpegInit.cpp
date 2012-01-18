@@ -280,6 +280,15 @@ void FFMPEG_set_Synchronisation_threshold(const int num_stream, const double v)
 }
 
 //______________________________________________________________________________
+const double FFMPEG_get_Video_time_base(const int num_stream) {
+ if(FFMPEG_Stream_exists(num_stream)) {
+	 //printf("FFMPEG_get_Video_time_base -> %f\n", Tab_P_FFMpegVideo[num_stream]->Video_time_base());
+	 return Tab_P_FFMpegVideo[num_stream]->Video_time_base();
+	}// else {printf("FFMPEG_get_Video_time_base on a non ready video stream...\n");}
+ return 0;
+}
+
+//______________________________________________________________________________
 const unsigned int FFMPEG_get_Video_pts(const int num_stream)
 {if(FFMPEG_Stream_exists(num_stream)) {
    return Tab_P_FFMpegVideo[num_stream]->Video_pts();
@@ -355,6 +364,46 @@ FSOUND_STREAM* FFMPEG_Get_a_new_FSOUND_STREAM( FSOUND_STREAMCALLBACK callback, i
    }
 
  return audio_strm;
+}
+
+//______________________________________________________________________________
+void  FFMPEG_Synchronize_audio_with_video(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		 Tab_P_FFMpegVideo[num_stream]->Synchronize_audio_with_video();
+		}
+}
+
+//______________________________________________________________________________
+const clock_t FFMPEG_get_time_t0(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		 return Tab_P_FFMpegVideo[num_stream]->get_time_t0();
+		} else return 0;
+}
+
+//______________________________________________________________________________
+const double FFMPEG_get_time_t0_as_double(const int num_stream) {
+	return (double)FFMPEG_get_time_t0(num_stream);
+}
+
+//______________________________________________________________________________
+void FFMPEG_set_time_t0_now(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		 Tab_P_FFMpegVideo[num_stream]->set_time_t0_now();
+		}
+}
+
+//______________________________________________________________________________
+void FFMPEG_set_time_t0_from_video(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		 Tab_P_FFMpegVideo[num_stream]->set_time_t0_from_video();
+		}
+}
+
+//______________________________________________________________________________
+const double FFMPEG_get_delta_from_t0(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		 return Tab_P_FFMpegVideo[num_stream]->get_delta_from_t0();
+		} else return 0;
 }
 
 //______________________________________________________________________________

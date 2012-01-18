@@ -159,30 +159,33 @@ if(ifscb->video_pts != AV_NOPTS_VALUE) {
          }
  //pts /= ifscb->time_base_video / ifscb->video_sample_rate;// av_q2d( (AVRational)ifscb->time_base_video );
  pts *= ifscb->time_base_video;
- double t_video      = pts - ifscb->s_SynchronisationThreshold//((double)ifscb->video_pts / (double)ifscb->time_base_video / ifscb->video_sample_rate) - ifscb->s_SynchronisationThreshold
+ double t_video      = pts //- ifscb->s_SynchronisationThreshold//((double)ifscb->video_pts / (double)ifscb->time_base_video / ifscb->video_sample_rate) - ifscb->s_SynchronisationThreshold
 	  , t_video_next = pts + ifscb->s_SynchronisationThreshold; //((double)ifscb->video_pts / (double)ifscb->time_base_video / ifscb->video_sample_rate) + ifscb->s_SynchronisationThreshold;
  bool go_on;
 
  do {
-   double dt            = ifscb->Tab_wav[ifscb->first].duration    * (double)ifscb->time_base_audio
-        , t_start_audio = (double)ifscb->Tab_wav[ifscb->first].pts * (double)ifscb->time_base_audio
+   double /*dt            = ifscb->Tab_wav[ifscb->first].duration    * (double)ifscb->time_base_audio
+        ,*/t_start_audio = (double)ifscb->Tab_wav[ifscb->first].pts * (double)ifscb->time_base_audio
+		, t_next_audio  = (double)ifscb->Tab_wav[(ifscb->first + 1) % ifscb->nb_buffers].pts * (double)ifscb->time_base_audio
 		;
-   //std::cout << "  t_audio(" << t_start_audio << "); audio_pts(" << (double)ifscb->Tab_wav[ifscb->first].pts << "); time_base_audio(" << (double)ifscb->time_base_audio << ")\n";
-   //std::cout << "  t_video(" << t_video << "); ifscb->time_base_video(" << ifscb->time_base_video << ") ifscb->s_SynchronisationThreshold(" << ifscb->s_SynchronisationThreshold << ");\n";
-   //std::cout << "A(" << t_start_audio << ") A.pts(" << (double)ifscb->Tab_wav[ifscb->first].dts << ")" << ") ifscb->video_pts(" << ifscb->video_pts <<") V(" << pts << ") delta(" << pts-t_start_audio << ")\n";
-   //std::cout << pts-t_start_audio << "; ";
-   if( t_start_audio > t_video_next )
+   if ( 0/*!ifscb->synchronize_with_video
+	  &&( t_start_audio > t_video_next )*/
+	  )
     {
-	 //std::cout << "Delay audio frame cause A:" << t_start_audio << " > NextV:" << t_video_next << "\n";
+	 std::cout << "Delay audio frame cause A:" << t_start_audio << " > NextV:" << t_video_next << "\n";
      return true;
     }
-   if( (t_start_audio+dt) < t_video ) {
+   if( /*(t_start_audio+dt)*//*t_next_audio*///(t_next_audio + ifscb->s_SynchronisationThreshold) < t_video 
+	      ( ifscb->synchronize_with_video && t_next_audio < t_video)
+	  // || (!ifscb->synchronize_with_video && (t_next_audio+ifscb->s_SynchronisationThreshold) < t_video)
+	 ) {
+	 //std::cout << "Audio is late / video " << ifscb->not_enough << " , " << ((Info_for_sound_CB_Size_buffers(ifscb)-ifscb->Tab_wav[ifscb->first].size) >= len ) << "\n";
 	 if( ((Info_for_sound_CB_Size_buffers(ifscb)-ifscb->Tab_wav[ifscb->first].size) >= len ) 
 	   &&(!ifscb->not_enough) )
 	  {ifscb->has_skiped = true;
 	   go_on = true;
       // Skip audio frame
-	   std::cout << "Skip audio frame cause V(" << t_video << "); A(" << t_start_audio << "); "" A+dt:" << t_start_audio+dt << " < V:" << t_video << "\n";
+	   std::cout << "Skip audio frame cause V(" << t_video << "); A(" << t_start_audio << "); "" A.next:" << /*t_start_audio+dt*/t_next_audio << " < V:" << t_video << "\n";
 	   Info_for_sound_CB_Release(ifscb);
 	  } else {go_on = false;
 	          if((Info_for_sound_CB_Size_buffers(ifscb)-ifscb->Tab_wav[ifscb->first].size) >= len )

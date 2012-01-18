@@ -54,6 +54,11 @@ public:
 
 	const char* get_error_message() const {return error_msg.c_str();}
 
+	inline const clock_t get_time_t0() const {return info_for_sound_CB.t0;}
+	void set_time_t0_now();
+	void set_time_t0_from_video();
+	const double get_delta_from_t0();
+
 	bool getImage(/*util::ByteImage & img*/void *img);
 	bool getImageNr(unsigned long frame, void *img/*util::ByteImage & img*/);
 	bool seek(unsigned long frame, bool iframe = false, SeekMode sm = ABS);
@@ -65,7 +70,8 @@ public:
 	const double getFramerate( ) {return mFramerate;}
 	const double setFramerate(const double v) {return mFramerate = v;}
 
-	inline const unsigned int Video_pts() const {return video_pts;}
+	inline const double    Video_time_base() const {return time_base_video;}
+	inline const unsigned int    Video_pts() const {return video_pts;}
 	inline void Video_pts(const unsigned int v) {this->video_pts = v;}
 
 	inline const unsigned int Video_pts_for_audio      () {return info_for_sound_CB.video_pts;}
@@ -78,6 +84,8 @@ public:
 	inline void Debug_mode(const bool b) {debug_mode = b;}
 
 	inline void IFS_Drain_all() {Info_for_sound_Drain_all(&info_for_sound_CB);}
+
+	inline void Synchronize_audio_with_video() {info_for_sound_CB.synchronize_with_video = true;}
 
 	void Lock();
 	void UnLock();
@@ -115,7 +123,7 @@ private:
 		bool started;
 		int curFrame;
 		int width, height;
-		double mFramerate;
+		double mFramerate, time_base_video;
 		unsigned int nb_total_video_frames;
 
 		AVFrame *frame;

@@ -132,7 +132,7 @@ const bool FFMpegVideo::open(const char *fname) {
 			 }
 		}
 		
-		info_for_sound_CB.has_skiped = info_for_sound_CB.not_enough = false;
+		info_for_sound_CB.has_skiped = info_for_sound_CB.not_enough = info_for_sound_CB.synchronize_with_video = false;
 		if( audioStream != -1) // There is some SOUND!!!
 		 {AVStream *audio_str = formatCtx->streams[audioStream];
 		  audio_codecCtx = audio_str->codec;
@@ -161,8 +161,8 @@ const bool FFMpegVideo::open(const char *fname) {
 		}
 
 		AVStream *str = formatCtx->streams[ videoStream ];
-		info_for_sound_CB.time_base_video = av_q2d( str->time_base );
-		printf("info_for_sound_CB.time_base_video = %f\n", info_for_sound_CB.time_base_video);
+		info_for_sound_CB.time_base_video = this->time_base_video = av_q2d( str->time_base );
+		printf("info_for_sound_CB.time_base_video = %f\n", this->time_base_video);
 		printf("num / denum : %d / %d\n", str->time_base.num, str->time_base.den);
 		printf("formatCtx->timestamp = %d\n", formatCtx->timestamp);
 		printf("formatCtx->duration = %d\n", formatCtx->duration);
@@ -574,6 +574,22 @@ void FFMpegVideo::UnLock()
 }
 
 //______________________________________________________________________________
+void FFMpegVideo::set_time_t0_now()
+{info_for_sound_CB.t0 = clock();
+}
+
+//______________________________________________________________________________
+void FFMpegVideo::set_time_t0_from_video()
+{info_for_sound_CB.t0 = clock();
+ info_for_sound_CB.t0 -= info_for_sound_CB.video_pts * time_base_video * CLOCKS_PER_SEC;
+}
+
+//______________________________________________________________________________
+const double FFMpegVideo::get_delta_from_t0() {
+	return (double)(clock() - info_for_sound_CB.t0) / (double)CLOCKS_PER_SEC;
+}
+
+//______________________________________________________________________________
 //______________________________________________________________________________
 //______________________________________________________________________________
 Mutex::Mutex(void)
@@ -638,26 +654,93 @@ signed char F_CALLBACKAPI FFMPEG_FMOD_Stream_Info_audio(FSOUND_STREAM *stream, v
    mutex->lock();
  //printf("FFMPEG_FMOD_Stream_Info_audio->Lock(%i pkt/%i bytes)---\n", Info_for_sound_CB_Nb_pkt(info_for_sound_CB), Info_for_sound_CB_Size_buffers(info_for_sound_CB) );
  
- // Is the audio information up to date with video?
- if( Info_for_sound_CB_Synch_audio_to_video(info_for_sound_CB, len) ) 
+ // Is the audio information up to date with video?  
+ int total_size = Info_for_sound_CB_Size_buffers(info_for_sound_CB);
+ info_for_sound_CB->not_enough = (total_size < len);
+ bool has_synch_audio_video;
+ double t_video = info_for_sound_CB->video_pts * info_for_sound_CB->time_base_video;
+ if(info_for_sound_CB->synchronize_with_video) {
+	 //std::cout << "\nSYNCHRONIZING video/audio (t0 = " << info_for_sound_CB->t0 << "), tvideo : " << t_video;
+	 t_video = (double)(clock() - info_for_sound_CB->t0) / (double)CLOCKS_PER_SEC;
+	 t_video -= (double)len/(double)info_for_sound_CB->audio_sample_rate; // Cause the buffer is the next one to be played, it correspond to a futur time
+	 //std::cout << " -> " << t_video << "\n";
+	 info_for_sound_CB->video_pts = t_video / info_for_sound_CB->time_base_video;
+	}
+ if( !(has_synch_audio_video = !Info_for_sound_CB_Synch_audio_to_video(info_for_sound_CB, len)) ) 
   {memset(buff, 0, len);
    mutex->unlock();
    return TRUE;
   }
 
- int total_size = Info_for_sound_CB_Size_buffers(info_for_sound_CB);
+ total_size = Info_for_sound_CB_Size_buffers(info_for_sound_CB);
  // is there enough informations?
- int nb_zero, dec_buff, remain;
- if(total_size >= len) {
-   nb_zero  = 0;
-   dec_buff = 0;
-   remain   = len;
-  } else {nb_zero  = len - total_size;
-          dec_buff = nb_zero;
-		  remain   = total_size;
-		  info_for_sound_CB->not_enough = true;
+ int nb_zero, dec_buff, remain, nb_octets_to_skip = 0;
+ // If synchronization to achieve, insert some zeros at the start...
+ if(info_for_sound_CB->synchronize_with_video) {
+	 double t_audio = (double)info_for_sound_CB->Tab_wav[info_for_sound_CB->first].pts * info_for_sound_CB->time_base_audio,
+			t_audio_next = (double)info_for_sound_CB->Tab_wav[(info_for_sound_CB->first + 1)%info_for_sound_CB->nb_buffers].pts * info_for_sound_CB->time_base_audio;
+	 
+	 nb_zero = (int)((double)info_for_sound_CB->Tab_wav[info_for_sound_CB->first].size*(t_video-t_audio)/(t_audio_next-t_audio));
+	 if(nb_zero < 0 || nb_zero > len) {
+		 if(nb_zero < 0) {
+			 nb_zero = 16*(-nb_zero/16);
+			 printf("Insert %d zeros !!!\n", nb_zero);
+			 nb_zero = nb_zero<len?nb_zero:len;
+			 memset(buff, 0, nb_zero);
+			 dec_buff = nb_zero;
+			 remain = len - nb_zero;
+			} else {std::cout << "Too much zeros to insert, skip the packet\n";
+				    while(  info_for_sound_CB->nb > 0
+						 && nb_zero > info_for_sound_CB->Tab_wav[info_for_sound_CB->first].size) {
+						 nb_zero -= info_for_sound_CB->Tab_wav[info_for_sound_CB->first].size;
+						 Info_for_sound_CB_Release(info_for_sound_CB);
+						 std::cout << ".";
+						}
+					total_size = Info_for_sound_CB_Size_buffers(info_for_sound_CB);
+					nb_zero = 0;
+					dec_buff = 0;
+					remain   = len;
+				   }
+		} else { nb_octets_to_skip = 16*(nb_zero/16);
+				 printf("Tape ta synchro par coupe :\n\tnb_zero : %d\n\t deb : %d\n\tsize : %d\n", nb_zero, info_for_sound_CB->Tab_wav[info_for_sound_CB->first].deb, info_for_sound_CB->Tab_wav[info_for_sound_CB->first].size);
+				 while(  info_for_sound_CB->nb > 0
+					  && nb_octets_to_skip > info_for_sound_CB->Tab_wav[info_for_sound_CB->first].size) {
+					 nb_octets_to_skip -= info_for_sound_CB->Tab_wav[info_for_sound_CB->first].size;
+					 std::cout << "\tSkip a packet... still " << nb_octets_to_skip << " bytes to skip\n";
+					 Info_for_sound_CB_Release(info_for_sound_CB);
+					}
+				 total_size = Info_for_sound_CB_Size_buffers(info_for_sound_CB);
+				 nb_zero  = 0;
+				 dec_buff = 0;
+				 remain   = len;
+				 if(info_for_sound_CB->nb) 
+					 Info_for_sound_CB_Maj_size( info_for_sound_CB
+											   , info_for_sound_CB->first
+											   , nb_octets_to_skip
+											   , info_for_sound_CB->Tab_wav[info_for_sound_CB->first].size + info_for_sound_CB->Tab_wav[info_for_sound_CB->first].deb - nb_octets_to_skip
+											   );
+				 printf("\tnb_octets_to_skip : %d\n\tlen : %d\n", nb_octets_to_skip, len);
+				}
+	 printf("Skip %d bytes, add %d zeros / %d to synchronize audio with video\n\tt_video = %f\n\tt_audio  = %f\n\tt_audio_next = %f\n", nb_octets_to_skip, nb_zero, len, t_video, t_audio, t_audio_next);
+	 // XXX mise à jour de remain, dec_buff and co... voir plus bas !
+	} else {nb_zero  = 0;
+		    dec_buff = 0;
+		    remain   = len;
+		   }
+
+ // Insert audio informations
+ if(total_size >= remain) {
+	if (!info_for_sound_CB->synchronize_with_video) {
+		 nb_zero  = 0;
+		 dec_buff = 0;
+		 remain   = remain;
+		} else {printf("\tsynchro...\n");}
+  } else {nb_zero   = remain - total_size;
           cout << "___________ NOT ENOUGH AUDIO INFO, insert " << nb_zero << " zeros ______________\n";
-          memset(buff, 0, nb_zero);
+          memset((char*)buff+dec_buff, 0, nb_zero);
+		  dec_buff += nb_zero;
+		  remain    = total_size;
+		  info_for_sound_CB->not_enough = true;
          }
    // Copy informations to the buffer 
    while(remain > 0)
@@ -669,7 +752,12 @@ signed char F_CALLBACKAPI FFMPEG_FMOD_Stream_Info_audio(FSOUND_STREAM *stream, v
 	 remain	  -= nb_copied;
     }
   
- //printf("---FFMPEG_FMOD_Stream_Info_audio->UnLock\n"); 
+ //printf("---FFMPEG_FMOD_Stream_Info_audio->UnLock\n");
+ if(info_for_sound_CB->synchronize_with_video) {
+	 std::cout << "Synchro again?\n\thas_synch_audio_video : " << has_synch_audio_video
+		       << "\n\t(nb_zero == len) : " << (nb_zero == len) << "\n";
+	}
+ info_for_sound_CB->synchronize_with_video = info_for_sound_CB->synchronize_with_video && (!has_synch_audio_video || (nb_zero == len));
  mutex->unlock();
  return TRUE;
 }

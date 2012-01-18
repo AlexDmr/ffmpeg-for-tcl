@@ -3,6 +3,7 @@
 
 //#include <ffmpegvideo.h>
 #include <stdint.h>
+#include <time.h>
 class Mutex;
 
 const int ALX_INFO_BUFFER_AUDIO_TAILLE_BUFFER = 524288;
@@ -35,8 +36,10 @@ struct Info_for_sound_CB
  //int64_t /*time_base_audio,*/ time_base_video;
  int64_t video_pts;
  double time_base_audio, time_base_video;
+ 
+ clock_t t0;
 
- bool has_skiped, not_enough;
+ bool has_skiped, not_enough, synchronize_with_video;
 };
 
  extern "C"
