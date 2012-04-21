@@ -37,6 +37,8 @@ void Info_for_sound_CB_Init(Info_for_sound_CB *ifscb, Mutex *m)  {
   {Info_buffer_audio_Init( &(ifscb->Tab_wav[i]) );}
  ifscb->s_SynchronisationThreshold = 0.15;
  ifscb->last_buffer_index = 0;
+ ifscb->last_t = ifscb->first_t = 0;
+ ifscb->num_last_buffer = 0;
 }
 
 //______________________________________________________________________________
@@ -163,21 +165,12 @@ if(ifscb->video_pts != AV_NOPTS_VALUE) {
 	  , t_video_next = pts + ifscb->s_SynchronisationThreshold; //((double)ifscb->video_pts / (double)ifscb->time_base_video / ifscb->video_sample_rate) + ifscb->s_SynchronisationThreshold;
  bool go_on;
 
- do {
-   double /*dt            = ifscb->Tab_wav[ifscb->first].duration    * (double)ifscb->time_base_audio
-        ,*/t_start_audio = (double)ifscb->Tab_wav[ifscb->first].pts * (double)ifscb->time_base_audio
+ /*do {
+   double t_start_audio = (double)ifscb->Tab_wav[ifscb->first].pts * (double)ifscb->time_base_audio
 		, t_next_audio  = (double)ifscb->Tab_wav[(ifscb->first + 1) % ifscb->nb_buffers].pts * (double)ifscb->time_base_audio
 		;
-   if ( 0/*!ifscb->synchronize_with_video
-	  &&( t_start_audio > t_video_next )*/
-	  )
-    {
-	 std::cout << "Delay audio frame cause A:" << t_start_audio << " > NextV:" << t_video_next << "\n";
-     return true;
-    }
-   if( /*(t_start_audio+dt)*//*t_next_audio*///(t_next_audio + ifscb->s_SynchronisationThreshold) < t_video 
-	      ( ifscb->synchronize_with_video && t_next_audio < t_video)
-	  // || (!ifscb->synchronize_with_video && (t_next_audio+ifscb->s_SynchronisationThreshold) < t_video)
+
+   if( ( ifscb->synchronize_with_video && t_next_audio < t_video)
 	 ) {
 	 //std::cout << "Audio is late / video " << ifscb->not_enough << " , " << ((Info_for_sound_CB_Size_buffers(ifscb)-ifscb->Tab_wav[ifscb->first].size) >= len ) << "\n";
 	 if( ((Info_for_sound_CB_Size_buffers(ifscb)-ifscb->Tab_wav[ifscb->first].size) >= len ) 
@@ -185,7 +178,7 @@ if(ifscb->video_pts != AV_NOPTS_VALUE) {
 	  {ifscb->has_skiped = true;
 	   go_on = true;
       // Skip audio frame
-	   std::cout << "Skip audio frame cause V(" << t_video << "); A(" << t_start_audio << "); "" A.next:" << /*t_start_audio+dt*/t_next_audio << " < V:" << t_video << "\n";
+	   std::cout << "Skip audio frame cause V(" << t_video << "); A(" << t_start_audio << "); "" A.next:" << t_next_audio << " < V:" << t_video << "\n";
 	   Info_for_sound_CB_Release(ifscb);
 	  } else {go_on = false;
 	          if((Info_for_sound_CB_Size_buffers(ifscb)-ifscb->Tab_wav[ifscb->first].size) >= len )
@@ -194,6 +187,6 @@ if(ifscb->video_pts != AV_NOPTS_VALUE) {
 			   }
 	         }
     } else {go_on = false;}
-  } while( ifscb->nb && go_on );
+  } while( ifscb->nb && go_on );*/
  return (ifscb->nb == 0);
 }

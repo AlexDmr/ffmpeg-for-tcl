@@ -38,6 +38,12 @@ extern "C" {
 	const bool FFMPEG_getImageNr(const int num_stream, unsigned long frame, void *img);
 	const bool FFMPEG_seek      (const int num_stream, unsigned long frame, bool iframe, int sm);
 
+	const unsigned int FFMPEG_getSoundPosition(FSOUND_STREAM *stream);
+	void FFMPEG_getSoundPosition(FSOUND_STREAM *stream, const unsigned int pos);	
+
+	const int FFMPEG_getSoundTime(FSOUND_STREAM *stream);
+	void FFMPEG_setSoundTime(FSOUND_STREAM *stream, const int pos);
+
 	const double FFMPEG_get_Video_time_base(const int num_stream);
 	const unsigned int FFMPEG_get_Video_pts(const int num_stream);
 
@@ -57,6 +63,10 @@ extern "C" {
 	const double FFMPEG_get_delta_from_t0(const int num_stream);
 	void FFMPEG_set_time_t0_now(const int num_stream);
 	void FFMPEG_set_time_t0_from_video(const int num_stream);
+
+	const double FFMPEG_get_first_time(const int num_stream);
+	const double FFMPEG_get_delta_from_first_time(const int num_stream);
+	const long FFMPEG_get_num_last_buffer(const int num_stream);
 
 	const char* FFMPEG_information(const int num_stream);
 

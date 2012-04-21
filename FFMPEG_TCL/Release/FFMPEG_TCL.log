@@ -1,4 +1,4 @@
-﻿La génération a démarré 18/01/2012 18:05:13.
+﻿La génération a démarré 27/02/2012 11:11:54.
      1>Projet "C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\FFMPEG_TCL.vcxproj" sur le nœud 2 (rebuild cible(s)).
      1>_PrepareForClean:
          Suppression du fichier "Release\FFMPEG_TCL.lastbuildstate".
@@ -13,7 +13,8 @@
          FFMpegInit.cpp
      1>c:\these\devcomets\ffmpeg\include\libavutil\common.h(171): warning C4244: 'return' : conversion de 'int64_t' en 'int32_t', perte possible de données
      1>c:\these\devcomets\ffmpeg\include\libavutil\common.h(230): warning C4244: 'argument' : conversion de 'uint64_t' en 'uint32_t', perte possible de données
-     1>C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\ffmpegvideo.h(77): warning C4244: 'return' : conversion de 'int64_t' en 'const unsigned int', perte possible de données
+     1>C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\ffmpegvideo.h(80): warning C4244: 'return' : conversion de 'int64_t' en 'const unsigned int', perte possible de données
+     1>C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\ffmpegvideo.h(93): warning C4244: 'return' : conversion de 'const int64_t' en 'long', perte possible de données
      1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\SWIG/ffmpeg_dll_wrap.cxx(689): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(105) : voir la déclaration de 'strcpy'
      1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\SWIG/ffmpeg_dll_wrap.cxx(714): warning C4996: 'strncpy': This function or variable may be unsafe. Consider using strncpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
@@ -26,31 +27,32 @@
                  c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\string.h(105) : voir la déclaration de 'strcpy'
      1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\SWIG/ffmpeg_dll_wrap.cxx(1612): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(371) : voir la déclaration de 'sprintf'
-     1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\SWIG/ffmpeg_dll_wrap.cxx(1851): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\SWIG/ffmpeg_dll_wrap.cxx(1848): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(371) : voir la déclaration de 'sprintf'
-     1>FFMpegInit.cpp(414): warning C4800: 'signed char' : valeur forcée à la valeur booléenne 'true' ou 'false' (avertissement sur les performances)
+     1>FFMpegInit.cpp(421): warning C4800: 'signed char' : valeur forcée à la valeur booléenne 'true' ou 'false' (avertissement sur les performances)
+     1>FFMpegInit.cpp(447): warning C4244: 'return' : conversion de 'double' en 'const long', perte possible de données
          ffmpegvideo.cpp
      1>c:\these\devcomets\ffmpeg\include\libavutil\common.h(171): warning C4244: 'return' : conversion de 'int64_t' en 'int32_t', perte possible de données
      1>c:\these\devcomets\ffmpeg\include\libavutil\common.h(230): warning C4244: 'argument' : conversion de 'uint64_t' en 'uint32_t', perte possible de données
-     1>C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Infos_audio.cpp(157): warning C4244: '=' : conversion de 'int64_t' en 'double', perte possible de données
-     1>C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Infos_audio.cpp(183): warning C4018: '>=' : incompatibilité signed/unsigned
-     1>C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Infos_audio.cpp(191): warning C4018: '>=' : incompatibilité signed/unsigned
-     1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\FFMpegVideo.h(77): warning C4244: 'return' : conversion de 'int64_t' en 'const unsigned int', perte possible de données
+     1>C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Infos_audio.cpp(159): warning C4244: '=' : conversion de 'int64_t' en 'double', perte possible de données
+     1>C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Infos_audio.cpp(166): warning C4101: 'go_on' : variable locale non référencée
+     1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\FFMpegVideo.h(80): warning C4244: 'return' : conversion de 'int64_t' en 'const unsigned int', perte possible de données
+     1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\FFMpegVideo.h(93): warning C4244: 'return' : conversion de 'const int64_t' en 'long', perte possible de données
      1>ffmpegvideo.cpp(123): warning C4018: '<' : incompatibilité signed/unsigned
-     1>ffmpegvideo.cpp(400): warning C4018: '>=' : incompatibilité signed/unsigned
-     1>ffmpegvideo.cpp(426): warning C4018: '>' : incompatibilité signed/unsigned
-     1>ffmpegvideo.cpp(466): warning C4244: '=' : conversion de 'uint64_t' en 'unsigned int', perte possible de données
-     1>ffmpegvideo.cpp(584): warning C4244: '-=' : conversion de 'double' en 'clock_t', perte possible de données
-     1>ffmpegvideo.cpp(667): warning C4244: '=' : conversion de 'double' en 'int64_t', perte possible de données
-     1>ffmpegvideo.cpp(694): warning C4018: '>' : incompatibilité signed/unsigned
+     1>ffmpegvideo.cpp(403): warning C4018: '>=' : incompatibilité signed/unsigned
+     1>ffmpegvideo.cpp(429): warning C4018: '>' : incompatibilité signed/unsigned
+     1>ffmpegvideo.cpp(469): warning C4244: '=' : conversion de 'uint64_t' en 'unsigned int', perte possible de données
+     1>ffmpegvideo.cpp(587): warning C4244: '-=' : conversion de 'double' en 'clock_t', perte possible de données
+     1>ffmpegvideo.cpp(603): warning C4244: 'return' : conversion de 'double' en 'const clock_t', perte possible de données
+     1>ffmpegvideo.cpp(678): warning C4244: '=' : conversion de 'double' en 'int64_t', perte possible de données
      1>ffmpegvideo.cpp(707): warning C4018: '>' : incompatibilité signed/unsigned
+     1>ffmpegvideo.cpp(720): warning C4018: '>' : incompatibilité signed/unsigned
          FFMPEG_TCL.cpp
          Infos_audio.cpp
      1>c:\these\devcomets\ffmpeg\include\libavutil\common.h(171): warning C4244: 'return' : conversion de 'int64_t' en 'int32_t', perte possible de données
      1>c:\these\devcomets\ffmpeg\include\libavutil\common.h(230): warning C4244: 'argument' : conversion de 'uint64_t' en 'uint32_t', perte possible de données
-     1>Infos_audio.cpp(157): warning C4244: '=' : conversion de 'int64_t' en 'double', perte possible de données
-     1>Infos_audio.cpp(183): warning C4018: '>=' : incompatibilité signed/unsigned
-     1>Infos_audio.cpp(191): warning C4018: '>=' : incompatibilité signed/unsigned
+     1>Infos_audio.cpp(159): warning C4244: '=' : conversion de 'int64_t' en 'double', perte possible de données
+     1>Infos_audio.cpp(166): warning C4101: 'go_on' : variable locale non référencée
        Link:
          c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:C:\These\devComets\FFMPEG\lib /LIBPATH:C:\FMOD\api\lib /LIBPATH:C:\Tcl\lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"FFMPEG_TCL.def" /MANIFEST /ManifestFile:"Release\FFMPEG_TCL.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.lib" /MACHINE:X86 /DLL Release\dllmain.obj
          Release\FFMpegInit.obj
@@ -61,7 +63,7 @@
             Création de la bibliothèque C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.lib et de l'objet C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.exp
      1>FFMPEG_TCL.exp : warning LNK4070: la directive /OUT:Ffmpeg_for_tcl.dll dans .EXP est différente du nom du fichier de sortie 'C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.dll' ; directive ignorée
          Génération de code en cours
-     1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\ffmpegvideo.cpp(388): warning C4700: variable locale 'frameNr' non initialisée utilisée
+     1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\ffmpegvideo.cpp(391): warning C4700: variable locale 'frameNr' non initialisée utilisée
          Fin de la génération du code
      1>FFMPEG_TCL.exp : warning LNK4070: la directive /OUT:Ffmpeg_for_tcl.dll dans .EXP est différente du nom du fichier de sortie 'C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.dll' ; directive ignorée
          FFMPEG_TCL.vcxproj -> C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.dll
@@ -74,4 +76,4 @@
 
 La génération a réussi.
 
-Temps écoulé 00:00:03.26
+Temps écoulé 00:00:06.19

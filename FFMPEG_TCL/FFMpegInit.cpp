@@ -407,6 +407,13 @@ const double FFMPEG_get_delta_from_t0(const int num_stream) {
 }
 
 //______________________________________________________________________________
+const double FFMPEG_get_first_time(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		 return (double)Tab_P_FFMpegVideo[num_stream]->get_first_time();
+		} else return 0;
+}
+
+//______________________________________________________________________________
 const bool FFMPEG_close_FSOUND_STREAM(FSOUND_STREAM *strm)
 {while( !FSOUND_Stream_Stop(strm) )
 {printf("FFMPEG_close_FSOUND_STREAM : waiting for fmod stream to stop\n");}
@@ -414,7 +421,39 @@ const bool FFMPEG_close_FSOUND_STREAM(FSOUND_STREAM *strm)
  return FSOUND_Stream_Close(strm);
 }
 
+//______________________________________________________________________________
+const unsigned int FFMPEG_getSoundPosition(FSOUND_STREAM *stream) {
+	return FSOUND_Stream_GetPosition(stream);
+}
 
+//______________________________________________________________________________
+void FFMPEG_getSoundPosition(FSOUND_STREAM *stream, const unsigned int pos) {
+	FSOUND_Stream_SetPosition(stream, pos);
+}
+
+//______________________________________________________________________________
+const int FFMPEG_getSoundTime(FSOUND_STREAM *stream) {
+	return FSOUND_Stream_GetTime(stream);
+}
+
+//______________________________________________________________________________
+void FFMPEG_setSoundTime(FSOUND_STREAM *stream, const int pos) {
+	FSOUND_Stream_SetTime(stream, pos);
+}
+
+//______________________________________________________________________________
+const long FFMPEG_get_num_last_buffer(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		 return (double)Tab_P_FFMpegVideo[num_stream]->get_num_last_buffer();
+		} else return 0;
+}
+
+//______________________________________________________________________________
+const double FFMPEG_get_delta_from_first_time(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		 return (double)Tab_P_FFMpegVideo[num_stream]->get_delta_from_first_time();
+		} else return 0;
+}
 
 //______________________________________________________________________________
 //______________________________________________________________________________

@@ -37,7 +37,8 @@ struct Info_for_sound_CB
  int64_t video_pts;
  double time_base_audio, time_base_video;
  
- clock_t t0;
+ clock_t t0, last_t, first_t;
+ int64_t num_last_buffer;
 
  bool has_skiped, not_enough, synchronize_with_video;
 };

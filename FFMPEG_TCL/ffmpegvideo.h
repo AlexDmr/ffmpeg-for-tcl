@@ -54,7 +54,10 @@ public:
 
 	const char* get_error_message() const {return error_msg.c_str();}
 
+	inline const clock_t get_first_time() const {return info_for_sound_CB.first_t;}
+	const clock_t get_delta_from_first_time() const;
 	inline const clock_t get_time_t0() const {return info_for_sound_CB.t0;}
+	void init_time_t0();
 	void set_time_t0_now();
 	void set_time_t0_from_video();
 	const double get_delta_from_t0();
@@ -83,9 +86,11 @@ public:
 	inline const bool Debug_mode() const {return debug_mode;}
 	inline void Debug_mode(const bool b) {debug_mode = b;}
 
-	inline void IFS_Drain_all() {Info_for_sound_Drain_all(&info_for_sound_CB);}
+	inline void IFS_Drain_all() {Info_for_sound_Drain_all(&info_for_sound_CB); init_time_t0();}
 
 	inline void Synchronize_audio_with_video() {info_for_sound_CB.synchronize_with_video = true;}
+
+	inline long get_num_last_buffer() const {return info_for_sound_CB.num_last_buffer;}
 
 	void Lock();
 	void UnLock();

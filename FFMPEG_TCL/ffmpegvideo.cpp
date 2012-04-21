@@ -374,11 +374,14 @@ const bool FFMpegVideo::open(const char *fname) {
 	}
 
 //______________________________________________________________________________
-	bool FFMpegVideo::seek(unsigned long nr, bool iframe, SeekMode sm /*= ABS*/) {
+bool FFMpegVideo::seek(unsigned long nr, bool iframe, SeekMode sm /*= ABS*/) {
 		if( (formatCtx == 0) || (codecCtx == 0) )
 			printf("stream not open");
 
-unsigned long frameNr;
+	unsigned long frameNr;
+	avcodec_flush_buffers(codecCtx);
+	if(audio_codecCtx) avcodec_flush_buffers(audio_codecCtx);
+
 		switch( sm ) {
 			case ABS:
 				frameNr = nr;
@@ -586,7 +589,18 @@ void FFMpegVideo::set_time_t0_from_video()
 
 //______________________________________________________________________________
 const double FFMpegVideo::get_delta_from_t0() {
+	if(info_for_sound_CB.first_t == 0) return 0;
 	return (double)(clock() - info_for_sound_CB.t0) / (double)CLOCKS_PER_SEC;
+}
+
+//______________________________________________________________________________
+void FFMpegVideo::init_time_t0() {
+	info_for_sound_CB.t0 = 0;
+}
+
+//______________________________________________________________________________
+const clock_t FFMpegVideo::get_delta_from_first_time() const {
+	return (double)(clock() - info_for_sound_CB.first_t) / (double)CLOCKS_PER_SEC;
 }
 
 //______________________________________________________________________________
@@ -652,25 +666,24 @@ signed char F_CALLBACKAPI FFMPEG_FMOD_Stream_Info_audio(FSOUND_STREAM *stream, v
 {Info_for_sound_CB *info_for_sound_CB = (Info_for_sound_CB*)userdata;
  Mutex             *mutex             = Info_for_sound_CB_Get_mutex(info_for_sound_CB);
    mutex->lock();
- //printf("FFMPEG_FMOD_Stream_Info_audio->Lock(%i pkt/%i bytes)---\n", Info_for_sound_CB_Nb_pkt(info_for_sound_CB), Info_for_sound_CB_Size_buffers(info_for_sound_CB) );
- 
- // Is the audio information up to date with video?  
+   info_for_sound_CB->num_last_buffer++;
+
+// Is the audio information up to date with video?  
  int total_size = Info_for_sound_CB_Size_buffers(info_for_sound_CB);
  info_for_sound_CB->not_enough = (total_size < len);
  bool has_synch_audio_video;
  double t_video = info_for_sound_CB->video_pts * info_for_sound_CB->time_base_video;
  if(info_for_sound_CB->synchronize_with_video) {
-	 //std::cout << "\nSYNCHRONIZING video/audio (t0 = " << info_for_sound_CB->t0 << "), tvideo : " << t_video;
-	 t_video = (double)(clock() - info_for_sound_CB->t0) / (double)CLOCKS_PER_SEC;
-	 t_video -= (double)len/(double)info_for_sound_CB->audio_sample_rate; // Cause the buffer is the next one to be played, it correspond to a futur time
-	 //std::cout << " -> " << t_video << "\n";
+	 t_video  = (double)(clock() - info_for_sound_CB->t0) / (double)CLOCKS_PER_SEC;
 	 info_for_sound_CB->video_pts = t_video / info_for_sound_CB->time_base_video;
 	}
+
  if( !(has_synch_audio_video = !Info_for_sound_CB_Synch_audio_to_video(info_for_sound_CB, len)) ) 
   {memset(buff, 0, len);
    mutex->unlock();
-   return TRUE;
-  }
+   return FALSE;
+ } else {if(info_for_sound_CB->first_t == 0) {info_for_sound_CB->first_t = clock();}
+		}
 
  total_size = Info_for_sound_CB_Size_buffers(info_for_sound_CB);
  // is there enough informations?
@@ -754,11 +767,13 @@ signed char F_CALLBACKAPI FFMPEG_FMOD_Stream_Info_audio(FSOUND_STREAM *stream, v
   
  //printf("---FFMPEG_FMOD_Stream_Info_audio->UnLock\n");
  if(info_for_sound_CB->synchronize_with_video) {
+	 //FSOUND_Stream_SetPosition(stream, FSOUND_Stream_GetPosition(stream));
 	 std::cout << "Synchro again?\n\thas_synch_audio_video : " << has_synch_audio_video
 		       << "\n\t(nb_zero == len) : " << (nb_zero == len) << "\n";
 	}
  info_for_sound_CB->synchronize_with_video = info_for_sound_CB->synchronize_with_video && (!has_synch_audio_video || (nb_zero == len));
  mutex->unlock();
+ if(info_for_sound_CB->first_t == 0) {info_for_sound_CB->first_t = clock();}
  return TRUE;
 }
 
