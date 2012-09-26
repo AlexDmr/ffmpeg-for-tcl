@@ -66,7 +66,9 @@ extern "C" {
 
 	const double FFMPEG_get_first_time(const int num_stream);
 	const double FFMPEG_get_delta_from_first_time(const int num_stream);
+
 	const long FFMPEG_get_num_last_buffer(const int num_stream);
+
 
 	const char* FFMPEG_information(const int num_stream);
 
@@ -79,13 +81,13 @@ extern "C" {
 	void* FFMPEG_Get_a_buffer(const unsigned int nb_bytes);
 	void  FFMPEG_Release_buffer(void *buff);
 
-	void  FFMPEG_Synchronize_audio_with_video(const int num_stream);
+	//void  FFMPEG_Synchronize_audio_with_video(const int num_stream);
 
 	const bool FFMPEG_get_Debug_mode(const int num_stream);
 	void FFMPEG_set_Debug_mode(const int num_stream, const bool b);
 
-	const double FFMPEG_get_Synchronisation_threshold(const int num_stream);
-	void FFMPEG_set_Synchronisation_threshold(const int num_stream, const double v);
+	//const double FFMPEG_get_Synchronisation_threshold(const int num_stream);
+	//void FFMPEG_set_Synchronisation_threshold(const int num_stream, const double v);
 
 	Info_for_sound_CB* FFMPEG_Info_for_sound_CB      (const int num_stream);
 	const unsigned int FFMPEG_Sound_sample_rate      (const int num_stream);

@@ -77,10 +77,12 @@ void Info_for_sound_CB_Put_New(Info_for_sound_CB *ifscb, const void *buf_src, co
 
 }
 
+/*
 //______________________________________________________________________________
 const double Info_for_sound_get_Synchronisation_threshold(const Info_for_sound_CB *ifscb)   {return ifscb->s_SynchronisationThreshold;}
 //______________________________________________________________________________
 void Info_for_sound_set_Synchronisation_threshold(Info_for_sound_CB *ifscb, double v) {ifscb->s_SynchronisationThreshold = v;}
+*/
 
 //______________________________________________________________________________
 void Info_for_sound_CB_Release(Info_for_sound_CB *ifscb) {
@@ -97,6 +99,7 @@ void Info_for_sound_Drain_all(Info_for_sound_CB *ifscb)
  while(Info_for_sound_CB_Nb_pkt(ifscb))
   {Info_for_sound_CB_Release(ifscb);
   }
+ ifscb->first_t = 0;
  Info_for_sound_CB_UnLock(ifscb);
 }
 

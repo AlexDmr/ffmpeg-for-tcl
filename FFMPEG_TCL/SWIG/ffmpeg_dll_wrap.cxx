@@ -2766,26 +2766,6 @@ fail:
 
 
 SWIGINTERN int
-_wrap_FFMPEG_Synchronize_audio_with_video(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
-  int arg1 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  
-  if (SWIG_GetArgs(interp, objc, objv,"o:FFMPEG_Synchronize_audio_with_video num_stream ",(void *)0) == TCL_ERROR) SWIG_fail;
-  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "FFMPEG_Synchronize_audio_with_video" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = static_cast< int >(val1);
-  FFMPEG_Synchronize_audio_with_video(arg1);
-  
-  return TCL_OK;
-fail:
-  return TCL_ERROR;
-}
-
-
-SWIGINTERN int
 _wrap_FFMPEG_get_Debug_mode(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   int arg1 ;
   int val1 ;
@@ -2827,55 +2807,6 @@ _wrap_FFMPEG_set_Debug_mode(ClientData clientData SWIGUNUSED, Tcl_Interp *interp
   } 
   arg2 = static_cast< bool >(val2);
   FFMPEG_set_Debug_mode(arg1,arg2);
-  
-  return TCL_OK;
-fail:
-  return TCL_ERROR;
-}
-
-
-SWIGINTERN int
-_wrap_FFMPEG_get_Synchronisation_threshold(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
-  int arg1 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  double result;
-  
-  if (SWIG_GetArgs(interp, objc, objv,"o:FFMPEG_get_Synchronisation_threshold num_stream ",(void *)0) == TCL_ERROR) SWIG_fail;
-  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "FFMPEG_get_Synchronisation_threshold" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = static_cast< int >(val1);
-  result = (double)FFMPEG_get_Synchronisation_threshold(arg1);
-  Tcl_SetObjResult(interp,SWIG_From_double(static_cast< double >(result)));
-  return TCL_OK;
-fail:
-  return TCL_ERROR;
-}
-
-
-SWIGINTERN int
-_wrap_FFMPEG_set_Synchronisation_threshold(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
-  int arg1 ;
-  double arg2 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  double val2 ;
-  int ecode2 = 0 ;
-  
-  if (SWIG_GetArgs(interp, objc, objv,"oo:FFMPEG_set_Synchronisation_threshold num_stream v ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
-  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "FFMPEG_set_Synchronisation_threshold" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = static_cast< int >(val1);
-  ecode2 = SWIG_AsVal_double SWIG_TCL_CALL_ARGS_2(objv[2], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "FFMPEG_set_Synchronisation_threshold" "', argument " "2"" of type '" "double""'");
-  } 
-  arg2 = static_cast< double >(val2);
-  FFMPEG_set_Synchronisation_threshold(arg1,arg2);
   
   return TCL_OK;
 fail:
@@ -3402,11 +3333,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "Ffmpeg_for_tcl_Init", (swig_wrapper_func) _wrap_Ffmpeg_for_tcl_Init, NULL},
     { SWIG_prefix "FFMPEG_Get_a_buffer", (swig_wrapper_func) _wrap_FFMPEG_Get_a_buffer, NULL},
     { SWIG_prefix "FFMPEG_Release_buffer", (swig_wrapper_func) _wrap_FFMPEG_Release_buffer, NULL},
-    { SWIG_prefix "FFMPEG_Synchronize_audio_with_video", (swig_wrapper_func) _wrap_FFMPEG_Synchronize_audio_with_video, NULL},
     { SWIG_prefix "FFMPEG_get_Debug_mode", (swig_wrapper_func) _wrap_FFMPEG_get_Debug_mode, NULL},
     { SWIG_prefix "FFMPEG_set_Debug_mode", (swig_wrapper_func) _wrap_FFMPEG_set_Debug_mode, NULL},
-    { SWIG_prefix "FFMPEG_get_Synchronisation_threshold", (swig_wrapper_func) _wrap_FFMPEG_get_Synchronisation_threshold, NULL},
-    { SWIG_prefix "FFMPEG_set_Synchronisation_threshold", (swig_wrapper_func) _wrap_FFMPEG_set_Synchronisation_threshold, NULL},
     { SWIG_prefix "FFMPEG_Info_for_sound_CB", (swig_wrapper_func) _wrap_FFMPEG_Info_for_sound_CB, NULL},
     { SWIG_prefix "FFMPEG_Sound_sample_rate", (swig_wrapper_func) _wrap_FFMPEG_Sound_sample_rate, NULL},
     { SWIG_prefix "FFMPEG_Nb_channels", (swig_wrapper_func) _wrap_FFMPEG_Nb_channels, NULL},

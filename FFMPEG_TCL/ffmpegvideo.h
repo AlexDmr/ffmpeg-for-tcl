@@ -88,15 +88,15 @@ public:
 
 	inline void IFS_Drain_all() {Info_for_sound_Drain_all(&info_for_sound_CB); init_time_t0();}
 
-	inline void Synchronize_audio_with_video() {info_for_sound_CB.synchronize_with_video = true;}
+	//inline void Synchronize_audio_with_video() {info_for_sound_CB.synchronize_with_video = true;}
 
 	inline long get_num_last_buffer() const {return info_for_sound_CB.num_last_buffer;}
 
 	void Lock();
 	void UnLock();
 
-	const double get_Synchronisation_threshold() const;
-	void set_Synchronisation_threshold(const double v);
+	//const double get_Synchronisation_threshold() const;
+	//void set_Synchronisation_threshold(const double v);
 
 	inline const unsigned int Nb_channels() const {return nb_channels;}
 	inline Info_for_sound_CB* get_Info_for_sound_CB() {return &info_for_sound_CB;}

@@ -265,6 +265,7 @@ void FFMPEG_UnLock(const int num_stream)
   }
 }
 
+/*
 //______________________________________________________________________________
 const double FFMPEG_get_Synchronisation_threshold(const int num_stream)
 {if(FFMPEG_Stream_exists(num_stream)) {
@@ -278,7 +279,7 @@ void FFMPEG_set_Synchronisation_threshold(const int num_stream, const double v)
    Tab_P_FFMpegVideo[num_stream]->set_Synchronisation_threshold(v);
   }
 }
-
+*/
 //______________________________________________________________________________
 const double FFMPEG_get_Video_time_base(const int num_stream) {
  if(FFMPEG_Stream_exists(num_stream)) {
@@ -367,11 +368,11 @@ FSOUND_STREAM* FFMPEG_Get_a_new_FSOUND_STREAM( FSOUND_STREAMCALLBACK callback, i
 }
 
 //______________________________________________________________________________
-void  FFMPEG_Synchronize_audio_with_video(const int num_stream) {
+/*void  FFMPEG_Synchronize_audio_with_video(const int num_stream) {
 	if(FFMPEG_Stream_exists(num_stream)) {
 		 Tab_P_FFMpegVideo[num_stream]->Synchronize_audio_with_video();
 		}
-}
+}*/
 
 //______________________________________________________________________________
 const clock_t FFMPEG_get_time_t0(const int num_stream) {
