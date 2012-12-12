@@ -1688,24 +1688,6 @@ SWIGEXPORT int SWIG_init(Tcl_Interp *);
 #include "..\\FFMpegInit.h"
 
 
-SWIGINTERN int
-SWIG_AsCharPtrAndSize(Tcl_Obj *obj, char** cptr, size_t* psize, int *alloc)
-{ 
-  int len = 0;
-  char *cstr = Tcl_GetStringFromObj(obj, &len);
-  if (cstr) {
-    if (cptr)  *cptr = cstr;
-    if (psize) *psize = len + 1;
-    if (alloc) *alloc = SWIG_OLDOBJ;
-    return SWIG_OK;
-  }
-  return SWIG_TypeError;
-}
-
-
-
-
-
 #include <limits.h>
 #if !defined(SWIG_NO_LLONG_MAX)
 # if !defined(LLONG_MAX) && defined(__GNUC__) && defined (__LONG_LONG_MAX__)
@@ -1732,6 +1714,24 @@ SWIG_From_int  (int value)
 {    
   return SWIG_From_long  (value);
 }
+
+
+SWIGINTERN int
+SWIG_AsCharPtrAndSize(Tcl_Obj *obj, char** cptr, size_t* psize, int *alloc)
+{ 
+  int len = 0;
+  char *cstr = Tcl_GetStringFromObj(obj, &len);
+  if (cstr) {
+    if (cptr)  *cptr = cstr;
+    if (psize) *psize = len + 1;
+    if (alloc) *alloc = SWIG_OLDOBJ;
+    return SWIG_OK;
+  }
+  return SWIG_TypeError;
+}
+
+
+
 
 
 SWIGINTERN int
@@ -1903,6 +1903,19 @@ fail:
 
 
 SWIGINTERN int
+_wrap_FFMPEG_FSOUND_GetBufferLengthTotal(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,":FFMPEG_FSOUND_GetBufferLengthTotal ") == TCL_ERROR) SWIG_fail;
+  result = (int)FFMPEG_FSOUND_GetBufferLengthTotal();
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_FFMPEG_Open_video_stream(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   int res1 ;
@@ -1961,6 +1974,90 @@ _wrap_FFMPEG_get_error_message(ClientData clientData SWIGUNUSED, Tcl_Interp *int
   } 
   arg1 = static_cast< int >(val1);
   result = (char *)FFMPEG_get_error_message(arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_FFMPEG_get_video_codec_name(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:FFMPEG_get_video_codec_name num_stream ",(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "FFMPEG_get_video_codec_name" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (char *)FFMPEG_get_video_codec_name(arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_FFMPEG_get_video_codec_long_name(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:FFMPEG_get_video_codec_long_name num_stream ",(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "FFMPEG_get_video_codec_long_name" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (char *)FFMPEG_get_video_codec_long_name(arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_FFMPEG_get_audio_codec_name(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:FFMPEG_get_audio_codec_name num_stream ",(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "FFMPEG_get_audio_codec_name" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (char *)FFMPEG_get_audio_codec_name(arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_FFMPEG_get_audio_codec_long_name(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:FFMPEG_get_audio_codec_long_name num_stream ",(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "FFMPEG_get_audio_codec_long_name" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (char *)FFMPEG_get_audio_codec_long_name(arg1);
   Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
   return TCL_OK;
 fail:
@@ -2601,6 +2698,27 @@ fail:
 
 
 SWIGINTERN int
+_wrap_FFMPEG_get_audio_clock_start(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  double result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:FFMPEG_get_audio_clock_start num_stream ",(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "FFMPEG_get_audio_clock_start" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (double)FFMPEG_get_audio_clock_start(arg1);
+  Tcl_SetObjResult(interp,SWIG_From_double(static_cast< double >(result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_FFMPEG_get_first_time(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   int arg1 ;
   int val1 ;
@@ -3107,6 +3225,26 @@ fail:
 
 
 SWIGINTERN int
+_wrap_FFMPEG_Commit_audio_buffers(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:FFMPEG_Commit_audio_buffers num_stream ",(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "FFMPEG_Commit_audio_buffers" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  FFMPEG_Commit_audio_buffers(arg1);
+  
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_FFMPEG_get_volume_of_canal(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   int arg1 ;
   int val1 ;
@@ -3298,9 +3436,14 @@ fail:
 
 static swig_command_info swig_commands[] = {
     { SWIG_prefix "ffmpeg_init", (swig_wrapper_func) _wrap_ffmpeg_init, NULL},
+    { SWIG_prefix "FFMPEG_FSOUND_GetBufferLengthTotal", (swig_wrapper_func) _wrap_FFMPEG_FSOUND_GetBufferLengthTotal, NULL},
     { SWIG_prefix "FFMPEG_Open_video_stream", (swig_wrapper_func) _wrap_FFMPEG_Open_video_stream, NULL},
     { SWIG_prefix "FFMPEG_Close_video_stream", (swig_wrapper_func) _wrap_FFMPEG_Close_video_stream, NULL},
     { SWIG_prefix "FFMPEG_get_error_message", (swig_wrapper_func) _wrap_FFMPEG_get_error_message, NULL},
+    { SWIG_prefix "FFMPEG_get_video_codec_name", (swig_wrapper_func) _wrap_FFMPEG_get_video_codec_name, NULL},
+    { SWIG_prefix "FFMPEG_get_video_codec_long_name", (swig_wrapper_func) _wrap_FFMPEG_get_video_codec_long_name, NULL},
+    { SWIG_prefix "FFMPEG_get_audio_codec_name", (swig_wrapper_func) _wrap_FFMPEG_get_audio_codec_name, NULL},
+    { SWIG_prefix "FFMPEG_get_audio_codec_long_name", (swig_wrapper_func) _wrap_FFMPEG_get_audio_codec_long_name, NULL},
     { SWIG_prefix "FFMPEG_Stream_exists", (swig_wrapper_func) _wrap_FFMPEG_Stream_exists, NULL},
     { SWIG_prefix "FFMPEG_startAcquisition", (swig_wrapper_func) _wrap_FFMPEG_startAcquisition, NULL},
     { SWIG_prefix "FFMPEG_stopAcquisition", (swig_wrapper_func) _wrap_FFMPEG_stopAcquisition, NULL},
@@ -3325,6 +3468,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "FFMPEG_get_delta_from_t0", (swig_wrapper_func) _wrap_FFMPEG_get_delta_from_t0, NULL},
     { SWIG_prefix "FFMPEG_set_time_t0_now", (swig_wrapper_func) _wrap_FFMPEG_set_time_t0_now, NULL},
     { SWIG_prefix "FFMPEG_set_time_t0_from_video", (swig_wrapper_func) _wrap_FFMPEG_set_time_t0_from_video, NULL},
+    { SWIG_prefix "FFMPEG_get_audio_clock_start", (swig_wrapper_func) _wrap_FFMPEG_get_audio_clock_start, NULL},
     { SWIG_prefix "FFMPEG_get_first_time", (swig_wrapper_func) _wrap_FFMPEG_get_first_time, NULL},
     { SWIG_prefix "FFMPEG_get_delta_from_first_time", (swig_wrapper_func) _wrap_FFMPEG_get_delta_from_first_time, NULL},
     { SWIG_prefix "FFMPEG_get_num_last_buffer", (swig_wrapper_func) _wrap_FFMPEG_get_num_last_buffer, NULL},
@@ -3351,6 +3495,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "FFMPEG_FSOUND_8b", (swig_wrapper_func) _wrap_FFMPEG_FSOUND_8b, NULL},
     { SWIG_prefix "FFMPEG_FSOUND_unsigned", (swig_wrapper_func) _wrap_FFMPEG_FSOUND_unsigned, NULL},
     { SWIG_prefix "FFMPEG_FSOUND_signed", (swig_wrapper_func) _wrap_FFMPEG_FSOUND_signed, NULL},
+    { SWIG_prefix "FFMPEG_Commit_audio_buffers", (swig_wrapper_func) _wrap_FFMPEG_Commit_audio_buffers, NULL},
     { SWIG_prefix "FFMPEG_get_volume_of_canal", (swig_wrapper_func) _wrap_FFMPEG_get_volume_of_canal, NULL},
     { SWIG_prefix "FFMPEG_set_volume_of_canal", (swig_wrapper_func) _wrap_FFMPEG_set_volume_of_canal, NULL},
     { SWIG_prefix "FFMPEG_Get_a_new_FSOUND_STREAM", (swig_wrapper_func) _wrap_FFMPEG_Get_a_new_FSOUND_STREAM, NULL},

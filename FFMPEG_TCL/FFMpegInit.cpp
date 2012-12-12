@@ -55,7 +55,7 @@ if(FFMPEG_Stream_exists(num_stream))
 	void ffmpeg_init() {
 		static bool initialized = false;
 		if ( ! initialized ) {
-			avcodec_init();
+			//avcodec_register_all();
 			avcodec_register_all();
 
 			av_register_all();
@@ -67,6 +67,45 @@ if(FFMPEG_Stream_exists(num_stream))
 			 }
 		}
 	}
+
+//______________________________________________________________________________
+void FFMPEG_Commit_audio_buffers(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		Info_for_sound_CB_Commit_buffers( Tab_P_FFMpegVideo[num_stream]->get_Info_for_sound_CB() );
+	  }
+}
+
+//______________________________________________________________________________
+const char* FFMPEG_get_video_codec_name     (const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		return Tab_P_FFMpegVideo[num_stream]->get_video_codec_name();
+	  }
+	 return "";
+}
+
+//______________________________________________________________________________
+const char* FFMPEG_get_video_codec_long_name(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		return Tab_P_FFMpegVideo[num_stream]->get_video_codec_long_name();
+	  }
+	 return "";
+}
+
+//______________________________________________________________________________
+const char* FFMPEG_get_audio_codec_name     (const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		return Tab_P_FFMpegVideo[num_stream]->get_audio_codec_name();
+	  }
+	 return "";
+}
+
+//______________________________________________________________________________
+const char* FFMPEG_get_audio_codec_long_name(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		return Tab_P_FFMpegVideo[num_stream]->get_audio_codec_long_name();
+	  }
+	 return "";
+}
 
 //______________________________________________________________________________
 const bool FFMPEG_Stream_exists(const int id)
@@ -334,7 +373,12 @@ int FFMPEG_Convert_void_to_binary_tcl_var(void *ptr_void, int length, char *var_
 //______________________________________________________________________________
 //______________________________________________________________________________
 void FFMPEG_FSOUND_Init()
-{FSOUND_Init(44100, 32, FSOUND_INIT_USEDEFAULTMIDISYNTH);
+{FSOUND_Init(44100, 32, FSOUND_INIT_USEDEFAULTMIDISYNTH | FSOUND_INIT_DONTLATENCYADJUST);
+}
+
+//______________________________________________________________________________
+const int FFMPEG_FSOUND_GetBufferLengthTotal() {
+	return FSOUND_DSP_GetBufferLengthTotal();
 }
 
 //______________________________________________________________________________
@@ -401,6 +445,13 @@ void FFMPEG_set_time_t0_from_video(const int num_stream) {
 }
 
 //______________________________________________________________________________
+const double FFMPEG_get_audio_clock_start(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		 return Tab_P_FFMpegVideo[num_stream]->get_audio_clock_start();
+		} else return 0;
+}
+
+//______________________________________________________________________________
 const double FFMPEG_get_delta_from_t0(const int num_stream) {
 	if(FFMPEG_Stream_exists(num_stream)) {
 		 return Tab_P_FFMpegVideo[num_stream]->get_delta_from_t0();
@@ -416,7 +467,7 @@ const double FFMPEG_get_first_time(const int num_stream) {
 
 //______________________________________________________________________________
 const bool FFMPEG_close_FSOUND_STREAM(FSOUND_STREAM *strm)
-{while( !FSOUND_Stream_Stop(strm) )
+{FSOUND_Stream_Stop(strm);
 {printf("FFMPEG_close_FSOUND_STREAM : waiting for fmod stream to stop\n");}
  printf("Stream closed!\n");
  return FSOUND_Stream_Close(strm);

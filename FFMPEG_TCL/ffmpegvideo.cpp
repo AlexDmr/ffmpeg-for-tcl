@@ -101,14 +101,15 @@ const bool FFMpegVideo::open(const char *fname) {
         //XXX id = f.getName();
 		      id = fname;
 
-		if( (code_ret = av_open_input_file(&formatCtx, fname, NULL, 0, NULL)) != 0 )
+//		if( (code_ret = av_open_input_file(&formatCtx, fname, NULL, 0, NULL)) != 0 )
+	   if( (code_ret = avformat_open_input(&formatCtx, fname, NULL, NULL)) != 0 )
 		 {printf("Failed to open input file");
 		  error_msg = "Failed to open input ressource (code "; error_msg += _itoa_s(code_ret, error_tmp, 10); error_msg += ").";
 	      return false;
 		 }
 		
 		// Retrieve stream information
-		if( (code_ret = av_find_stream_info(formatCtx)) < 0 ) {
+		if( (code_ret = avformat_find_stream_info(formatCtx, NULL)) < 0 ) {
 			av_close_input_file(formatCtx);
 			formatCtx = 0;
 			
@@ -134,12 +135,13 @@ const bool FFMpegVideo::open(const char *fname) {
 		}
 		
 		info_for_sound_CB.has_skiped = info_for_sound_CB.not_enough = info_for_sound_CB.synchronize_with_video = false;
+		audio_codec = NULL;
 		if( audioStream != -1) // There is some SOUND!!!
 		 {AVStream *audio_str = formatCtx->streams[audioStream];
 		  audio_codecCtx = audio_str->codec;
-		  AVCodec *audio_codec = avcodec_find_decoder(audio_codecCtx->codec_id);
-          avcodec_open(audio_codecCtx, audio_codec);
-		  sound_sample_rate                   = info_for_sound_CB.audio_sample_rate = audio_codecCtx->sample_rate;
+		  audio_codec = avcodec_find_decoder(audio_codecCtx->codec_id);
+          avcodec_open2(audio_codecCtx, audio_codec, NULL);
+		  sound_sample_rate = info_for_sound_CB.audio_sample_rate = audio_codecCtx->sample_rate;
 		  nb_channels = info_for_sound_CB.nb_channels = audio_codecCtx->channels;
 		    
           info_for_sound_CB.is_audio_signed   = true;
@@ -165,7 +167,7 @@ const bool FFMpegVideo::open(const char *fname) {
 		info_for_sound_CB.time_base_video = this->time_base_video = av_q2d( str->time_base );
 		printf("info_for_sound_CB.time_base_video = %f\n", this->time_base_video);
 		printf("num / denum : %d / %d\n", str->time_base.num, str->time_base.den);
-		printf("formatCtx->timestamp = %d\n", formatCtx->timestamp);
+		// printf("formatCtx->timestamp = %d\n", formatCtx->timestamp);
 		printf("formatCtx->duration = %d\n", formatCtx->duration);
 		
 		if (str->time_base.den > 1000) {
@@ -178,7 +180,7 @@ const bool FFMpegVideo::open(const char *fname) {
 		codecCtx = str->codec;
 
 		// Find the decoder for the video stream __________________________________________________
-		AVCodec *codec = avcodec_find_decoder(codecCtx->codec_id);
+		codec = avcodec_find_decoder(codecCtx->codec_id);
 		if( codec == NULL ) {
 			av_close_input_file(formatCtx);
 			formatCtx = 0;
@@ -189,7 +191,7 @@ const bool FFMpegVideo::open(const char *fname) {
 		}
 		
 		// Open codec _____________________________________________________________________________
-		if( avcodec_open(codecCtx, codec) < 0 ) {
+		if( avcodec_open2(codecCtx, codec, NULL) < 0 ) {
 			av_close_input_file(formatCtx);
 			formatCtx = 0;
 			
@@ -538,7 +540,7 @@ int FFMpegVideo::put_audio_packet(AVPacket *pkt)
 
 //______________________________________________________________________________
 void FFMpegVideo::Process_audio_packets()
-{Lock(); 
+{//Lock(); 
  //if(debug_mode) printf("Process_audio_packets->Lock---");
  alx_element_liste<AVPacket> *it     
                            , *it_fin = L_audio_pkt.Fin();
@@ -564,7 +566,7 @@ void FFMpegVideo::Process_audio_packets()
 // Release packet list
  L_audio_pkt.Vider();
  //if(debug_mode) printf("---Process_audio_packets->UnLock\n"); 
- UnLock();
+ //UnLock();
 }
 
 //______________________________________________________________________________
@@ -600,7 +602,7 @@ void FFMpegVideo::init_time_t0() {
 }
 
 //______________________________________________________________________________
-const clock_t FFMpegVideo::get_delta_from_first_time() const {
+const double FFMpegVideo::get_delta_from_first_time() const {
 	return (double)(clock() - info_for_sound_CB.first_t) / (double)CLOCKS_PER_SEC;
 }
 
@@ -672,20 +674,24 @@ signed char F_CALLBACKAPI FFMPEG_FMOD_Stream_Info_audio(FSOUND_STREAM *stream, v
 // Is the audio information up to date with video?  
  int total_size = Info_for_sound_CB_Size_buffers(info_for_sound_CB);
  info_for_sound_CB->not_enough = (total_size < len);
- bool has_synch_audio_video;
+ bool has_synch_audio_video, XXX_DEBUG_init = false;
  double t_video = info_for_sound_CB->video_pts * info_for_sound_CB->time_base_video;
  if(info_for_sound_CB->synchronize_with_video) {
 	 t_video  = (double)(clock() - info_for_sound_CB->t0) / (double)CLOCKS_PER_SEC;
 	 info_for_sound_CB->video_pts = t_video / info_for_sound_CB->time_base_video;
 	}
 
+ //printf("%x -> %d;", buff, FSOUND_Stream_GetPosition(stream));
  if( !(has_synch_audio_video = !Info_for_sound_CB_Synch_audio_to_video(info_for_sound_CB, len)) ) 
   {memset(buff, 0, len);
    mutex->unlock();
-   return FALSE;
- } else {if(info_for_sound_CB->first_t == 0) {
+   //printf("/%d\n", info_for_sound_CB->nb);
+   return TRUE;
+  } else {if(info_for_sound_CB->first_t == 0) {
 			 info_for_sound_CB->first_t           = clock(); // Synch with clock
 			 info_for_sound_CB->audio_clock_start = (double)info_for_sound_CB->Tab_wav[Info_for_sound_CB_First_index(info_for_sound_CB)].pts * info_for_sound_CB->time_base_audio;
+			 XXX_DEBUG_init = true;
+			 printf("/%f * %f\n", (double)info_for_sound_CB->Tab_wav[Info_for_sound_CB_First_index(info_for_sound_CB)].pts, info_for_sound_CB->time_base_audio);
 			}
 		}
 
@@ -697,6 +703,7 @@ signed char F_CALLBACKAPI FFMPEG_FMOD_Stream_Info_audio(FSOUND_STREAM *stream, v
 	 double t_audio = (double)info_for_sound_CB->Tab_wav[info_for_sound_CB->first].pts * info_for_sound_CB->time_base_audio,
 			t_audio_next = (double)info_for_sound_CB->Tab_wav[(info_for_sound_CB->first + 1)%info_for_sound_CB->nb_buffers].pts * info_for_sound_CB->time_base_audio;
 	 
+	 printf("---> Synchronisation audio/video <----\n");
 	 nb_zero = (int)((double)info_for_sound_CB->Tab_wav[info_for_sound_CB->first].size*(t_video-t_audio)/(t_audio_next-t_audio));
 	 if(nb_zero < 0 || nb_zero > len) {
 		 if(nb_zero < 0) {
@@ -759,12 +766,17 @@ signed char F_CALLBACKAPI FFMPEG_FMOD_Stream_Info_audio(FSOUND_STREAM *stream, v
 		  remain    = total_size;
 		  info_for_sound_CB->not_enough = true;
          }
+
+   if(XXX_DEBUG_init) {
+		 printf("dec_buff = %d\nremain = %d\n", dec_buff, remain);
+		}
    // Copy informations to the buffer 
+   if(1 || XXX_DEBUG_init) printf("\tCopy start time %f at %x\n", (double)info_for_sound_CB->Tab_wav[Info_for_sound_CB_First_index(info_for_sound_CB)].pts * info_for_sound_CB->time_base_audio, buff);
    while(remain > 0)
     {//printf("*");
+	 double time_tmp = (double)info_for_sound_CB->Tab_wav[Info_for_sound_CB_First_index(info_for_sound_CB)].pts * info_for_sound_CB->time_base_audio;
 	 int nb_copied = Info_for_sound_CB_Read(info_for_sound_CB, buff, dec_buff, remain);
 	 if(nb_copied <= 0) {printf("On ne copie rien (%i, requis %i, soit disant dispo %i)!!!\n", nb_copied, len, total_size); break;}
-	 //printf("%i", nb_copied);
      dec_buff += nb_copied;
 	 remain	  -= nb_copied;
     }
@@ -777,7 +789,7 @@ signed char F_CALLBACKAPI FFMPEG_FMOD_Stream_Info_audio(FSOUND_STREAM *stream, v
 	}
  info_for_sound_CB->synchronize_with_video = info_for_sound_CB->synchronize_with_video && (!has_synch_audio_video || (nb_zero == len));
  mutex->unlock();
- if(info_for_sound_CB->first_t == 0) {info_for_sound_CB->first_t = clock();}
+ if(XXX_DEBUG_init) {info_for_sound_CB->first_t = clock();}
  return TRUE;
 }
 

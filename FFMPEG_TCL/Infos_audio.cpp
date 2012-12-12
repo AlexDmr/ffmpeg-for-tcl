@@ -31,7 +31,7 @@ void Info_buffer_audio_Copy(Info_buffer_audio *iba, const Info_buffer_audio *src
 // For sound callback
 void Info_for_sound_CB_Init(Info_for_sound_CB *ifscb, Mutex *m)  {
  ifscb->mutex = m; 
- ifscb->first = ifscb->last = ifscb->nb = ifscb->size_buffers = 0; 
+ ifscb->first = ifscb->last = ifscb->last_temp = ifscb->nb = ifscb->size_buffers = ifscb->delta_buffers_temp = 0; 
  ifscb->nb_buffers = ALX_INFO_BUFFER_AUDIO_NB_BUFFER;
  for(unsigned int i = 0; i<ifscb->nb_buffers; i++)
   {Info_buffer_audio_Init( &(ifscb->Tab_wav[i]) );}
@@ -39,6 +39,17 @@ void Info_for_sound_CB_Init(Info_for_sound_CB *ifscb, Mutex *m)  {
  ifscb->last_buffer_index = 0;
  ifscb->last_t = ifscb->first_t = 0;
  ifscb->num_last_buffer = 0;
+}
+
+//______________________________________________________________________________
+void Info_for_sound_CB_Commit_buffers(Info_for_sound_CB *ifscb) {
+	Info_for_sound_CB_Lock(ifscb);
+		ifscb->nb += ifscb->last_temp - ifscb->last;
+		if(ifscb->last_temp < ifscb->last) {ifscb->nb += ALX_INFO_BUFFER_AUDIO_NB_BUFFER;}
+		ifscb->last = ifscb->last_temp;
+		ifscb->size_buffers += ifscb->delta_buffers_temp;
+		ifscb->delta_buffers_temp = 0;
+	Info_for_sound_CB_UnLock(ifscb);
 }
 
 //______________________________________________________________________________
@@ -56,25 +67,24 @@ const unsigned int Info_for_sound_CB_Size_buffers(Info_for_sound_CB *ifscb) {ret
 //______________________________________________________________________________
 void Info_for_sound_CB_Put_New(Info_for_sound_CB *ifscb, const void *buf_src, const int size, const int64_t pts, const int64_t dts, const int duration)
 {if(ifscb->nb >= ALX_INFO_BUFFER_AUDIO_NB_BUFFER) {std::cout << "\n________\nOVERLOAD!\n";}
- ifscb->size_buffers += size;
-   ifscb->Tab_wav[ifscb->last].size     = size;
-   ifscb->Tab_wav[ifscb->last].pts      = pts;
-   ifscb->Tab_wav[ifscb->last].dts      = dts;
-   ifscb->Tab_wav[ifscb->last].duration = duration;
+ ifscb->delta_buffers_temp += size;
+   ifscb->Tab_wav[ifscb->last_temp].size     = size;
+   ifscb->Tab_wav[ifscb->last_temp].pts      = pts;
+   ifscb->Tab_wav[ifscb->last_temp].dts      = dts;
+   ifscb->Tab_wav[ifscb->last_temp].duration = duration;
 
    if(ifscb->last_buffer_index + size >= ALX_INFO_BUFFER_AUDIO_TAILLE_BUFFER)
-    {ifscb->Tab_wav[ifscb->last].deb    = 0;
-     ifscb->Tab_wav[ifscb->last].buffer = ifscb->internal_buffer;
+    {ifscb->Tab_wav[ifscb->last_temp].deb    = 0;
+     ifscb->Tab_wav[ifscb->last_temp].buffer = ifscb->internal_buffer;
      ifscb->last_buffer_index           = size;
 	 //std::cout << "AUDIO CYCLE\n";
-    } else {ifscb->Tab_wav[ifscb->last].deb    = 0;
-            ifscb->Tab_wav[ifscb->last].buffer = ifscb->internal_buffer + ifscb->last_buffer_index;
+    } else {ifscb->Tab_wav[ifscb->last_temp].deb    = 0;
+            ifscb->Tab_wav[ifscb->last_temp].buffer = ifscb->internal_buffer + ifscb->last_buffer_index;
 			ifscb->last_buffer_index          += size;
            }
-   memcpy(ifscb->Tab_wav[ifscb->last].buffer, buf_src, size);
- ifscb->last = (ifscb->last+1)%ifscb->nb_buffers;
- ifscb->nb++;
-
+   memcpy(ifscb->Tab_wav[ifscb->last_temp].buffer, buf_src, size);
+ ifscb->last_temp = (ifscb->last_temp+1)%ifscb->nb_buffers;
+ // ifscb->nb++; // XXX DEBUG
 }
 
 /*
@@ -96,10 +106,12 @@ void Info_for_sound_CB_Release(Info_for_sound_CB *ifscb) {
 //______________________________________________________________________________
 void Info_for_sound_Drain_all(Info_for_sound_CB *ifscb)
 {Info_for_sound_CB_Lock  (ifscb);
+ Info_for_sound_CB_Commit_buffers(ifscb);
  while(Info_for_sound_CB_Nb_pkt(ifscb))
   {Info_for_sound_CB_Release(ifscb);
   }
- ifscb->first_t = 0;
+ ifscb->first_t = ifscb->last_t = 0;
+ ifscb->last_temp = ifscb->last;
  Info_for_sound_CB_UnLock(ifscb);
 }
 
@@ -166,7 +178,7 @@ if(ifscb->video_pts != AV_NOPTS_VALUE) {
  pts *= ifscb->time_base_video;
  double t_video      = pts //- ifscb->s_SynchronisationThreshold//((double)ifscb->video_pts / (double)ifscb->time_base_video / ifscb->video_sample_rate) - ifscb->s_SynchronisationThreshold
 	  , t_video_next = pts + ifscb->s_SynchronisationThreshold; //((double)ifscb->video_pts / (double)ifscb->time_base_video / ifscb->video_sample_rate) + ifscb->s_SynchronisationThreshold;
- bool go_on;
+// bool go_on;
 
  /*do {
    double t_start_audio = (double)ifscb->Tab_wav[ifscb->first].pts * (double)ifscb->time_base_audio

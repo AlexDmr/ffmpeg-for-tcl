@@ -27,7 +27,8 @@ struct Info_for_sound_CB
  
  Info_buffer_audio Tab_wav[ALX_INFO_BUFFER_AUDIO_NB_BUFFER];
  char internal_buffer[ALX_INFO_BUFFER_AUDIO_TAILLE_BUFFER];
- unsigned int nb_buffers, first, last, nb, size_buffers, last_buffer_index;
+ unsigned int nb, first, last; // number of valid table elements and their indexes
+ unsigned int nb_buffers, size_buffers, delta_buffers_temp, last_buffer_index, last_temp; // internal buffers information
  unsigned int audio_sample_rate;
  double       video_sample_rate;
  double       s_SynchronisationThreshold;
@@ -35,9 +36,9 @@ struct Info_for_sound_CB
  unsigned int size_audio_sample, nb_channels;
  //int64_t /*time_base_audio,*/ time_base_video;
  int64_t video_pts;
- double time_base_audio, time_base_video;
+ double time_base_audio, time_base_video, audio_clock_start;
  
- clock_t t0, last_t, first_t, audio_clock_start;
+ clock_t t0, last_t, first_t;
  int64_t num_last_buffer;
 
  bool has_skiped, not_enough, synchronize_with_video;
@@ -45,6 +46,8 @@ struct Info_for_sound_CB
 
  extern "C"
  {
+ 	inline __declspec(dllexport) void Info_for_sound_CB_Commit_buffers(Info_for_sound_CB *ifscb);
+
 	inline __declspec(dllexport) void Info_for_sound_CB_Init(Info_for_sound_CB *ifscb, Mutex *m);
 	inline __declspec(dllexport) Mutex* Info_for_sound_CB_Get_mutex (Info_for_sound_CB *ifscb);
 	inline __declspec(dllexport) const unsigned int Info_for_sound_CB_Nb_buffers(Info_for_sound_CB *ifscb);

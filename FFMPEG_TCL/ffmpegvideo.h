@@ -54,13 +54,20 @@ public:
 
 	const char* get_error_message() const {return error_msg.c_str();}
 
+	inline const double get_audio_clock_start() const {return info_for_sound_CB.audio_clock_start;}
+
 	inline const clock_t get_first_time() const {return info_for_sound_CB.first_t;}
-	const clock_t get_delta_from_first_time() const;
+	const double get_delta_from_first_time() const;
 	inline const clock_t get_time_t0() const {return info_for_sound_CB.t0;}
 	void init_time_t0();
 	void set_time_t0_now();
 	void set_time_t0_from_video();
 	const double get_delta_from_t0();
+
+	const char* get_video_codec_name     () const {if (codec) return codec->name     ; else return "";}
+	const char* get_video_codec_long_name() const {if (codec) return codec->long_name; else return "";}
+	const char* get_audio_codec_name     () const {if (audio_codec) return audio_codec->name     ; else return "";}
+	const char* get_audio_codec_long_name() const {if (audio_codec) return audio_codec->long_name; else return "";}
 
 	bool getImage(/*util::ByteImage & img*/void *img);
 	bool getImageNr(unsigned long frame, void *img/*util::ByteImage & img*/);
@@ -121,6 +128,7 @@ private:
 	private:
 		AVFormatContext *formatCtx;
 		AVCodecContext *codecCtx, *audio_codecCtx;
+		AVCodec *codec;
 		int videoStream;
 		int audioStream;
 		std::string id;
@@ -135,6 +143,7 @@ private:
 		bool debug_mode;
 
 	   // Audio
+		AVCodec *audio_codec;
 		Mutex mutex_audio;
 		Info_for_sound_CB info_for_sound_CB;
 		Info_buffer_audio info_buffer_audio_tmp;

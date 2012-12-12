@@ -25,10 +25,18 @@ extern "C" {
 	// Initialize the ffmpeg codecs.
     void ffmpeg_init();
     
+	const int FFMPEG_FSOUND_GetBufferLengthTotal();
+
 	const int FFMPEG_Open_video_stream (const char *f_name);
 	const int FFMPEG_Close_video_stream(const int num_stream);
 
 	const char* FFMPEG_get_error_message(const int num_stream);
+
+	const char* FFMPEG_get_video_codec_name     (const int num_stream);
+	const char* FFMPEG_get_video_codec_long_name(const int num_stream);
+	const char* FFMPEG_get_audio_codec_name     (const int num_stream);
+	const char* FFMPEG_get_audio_codec_long_name(const int num_stream);
+
 
 	const bool FFMPEG_Stream_exists(const int id);
 	const int FFMPEG_startAcquisition(const int num_stream);
@@ -64,6 +72,7 @@ extern "C" {
 	void FFMPEG_set_time_t0_now(const int num_stream);
 	void FFMPEG_set_time_t0_from_video(const int num_stream);
 
+	const double FFMPEG_get_audio_clock_start(const int num_stream);
 	const double FFMPEG_get_first_time(const int num_stream);
 	const double FFMPEG_get_delta_from_first_time(const int num_stream);
 
@@ -114,6 +123,8 @@ extern "C" {
     const unsigned int FFMPEG_FSOUND_8b      ();
     const unsigned int FFMPEG_FSOUND_unsigned();
     const unsigned int FFMPEG_FSOUND_signed  ();
+
+	void FFMPEG_Commit_audio_buffers(const int num_stream);
 
     const int FFMPEG_get_volume_of_canal(const int canal);
          void FFMPEG_set_volume_of_canal(const int canal, const int vol);
