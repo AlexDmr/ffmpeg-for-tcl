@@ -66,12 +66,6 @@ extern "C" {
 	const int FFMPEG_Width (const int num_stream);
 	const int FFMPEG_Height(const int num_stream);
 
-	const clock_t FFMPEG_get_time_t0(const int num_stream);
-	const double FFMPEG_get_time_t0_as_double(const int num_stream);
-	const double FFMPEG_get_delta_from_t0(const int num_stream);
-	void FFMPEG_set_time_t0_now(const int num_stream);
-	void FFMPEG_set_time_t0_from_video(const int num_stream);
-
 	const double FFMPEG_get_audio_clock_start(const int num_stream);
 	const double FFMPEG_get_first_time(const int num_stream);
 	const double FFMPEG_get_delta_from_first_time(const int num_stream);
@@ -124,16 +118,21 @@ extern "C" {
     const unsigned int FFMPEG_FSOUND_unsigned();
     const unsigned int FFMPEG_FSOUND_signed  ();
 
-	void FFMPEG_Commit_audio_buffers(const int num_stream);
+	const int FFMPEG_Commit_audio_buffers(const int num_stream);
+	
+	const int FFMPEG_get_nb_temp_audio_buffers(const int num_stream);
 
     const int FFMPEG_get_volume_of_canal(const int canal);
          void FFMPEG_set_volume_of_canal(const int canal, const int vol);
 
-	FSOUND_STREAM* FFMPEG_Get_a_new_FSOUND_STREAM( FSOUND_STREAMCALLBACK callback, int canal
+	FSOUND_STREAM* FFMPEG_Get_a_new_FSOUND_STREAM( FSOUND_STREAMCALLBACK callback
                                                  , int lenbytes
                                                  , unsigned int mode
                                                  , int samplerate
                                                  , void *userdata );
+	const int FFMPEG_FSOUND_STREAM_GetOpenState(FSOUND_STREAM *audio_strm);
+    const int FFMPEG_FSOUND_STREAM_Play(Info_for_sound_CB *ifscb, FSOUND_STREAM *audio_strm, int canal);
+	const int FFMPEG_FSOUND_STREAM_Stop(Info_for_sound_CB *ifscb, FSOUND_STREAM *audio_strm);
     const bool FFMPEG_close_FSOUND_STREAM(FSOUND_STREAM *strm);
 
 	static int Void2Photo (void *imgVector, 

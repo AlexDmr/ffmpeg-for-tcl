@@ -38,7 +38,7 @@ extern "C" {
 
 class FFMpegVideo {
 private:
-	unsigned int video_pts;
+	unsigned int video_pts, initial_video_pts;
 	struct SwsContext *img_convert_ctx;
 	std::string error_msg;
 
@@ -56,13 +56,8 @@ public:
 
 	inline const double get_audio_clock_start() const {return info_for_sound_CB.audio_clock_start;}
 
-	inline const clock_t get_first_time() const {return info_for_sound_CB.first_t;}
+	inline const double get_first_time	  () const {return (double)info_for_sound_CB.first_t;}
 	const double get_delta_from_first_time() const;
-	inline const clock_t get_time_t0() const {return info_for_sound_CB.t0;}
-	void init_time_t0();
-	void set_time_t0_now();
-	void set_time_t0_from_video();
-	const double get_delta_from_t0();
 
 	const char* get_video_codec_name     () const {if (codec) return codec->name     ; else return "";}
 	const char* get_video_codec_long_name() const {if (codec) return codec->long_name; else return "";}
@@ -93,7 +88,7 @@ public:
 	inline const bool Debug_mode() const {return debug_mode;}
 	inline void Debug_mode(const bool b) {debug_mode = b;}
 
-	inline void IFS_Drain_all() {Info_for_sound_Drain_all(&info_for_sound_CB); init_time_t0();}
+	inline void IFS_Drain_all() {Info_for_sound_Drain_all(&info_for_sound_CB);}
 
 	//inline void Synchronize_audio_with_video() {info_for_sound_CB.synchronize_with_video = true;}
 
@@ -147,12 +142,12 @@ private:
 		Mutex mutex_audio;
 		Info_for_sound_CB info_for_sound_CB;
 		Info_buffer_audio info_buffer_audio_tmp;
-        alx_liste<AVPacket>          L_audio_pkt;
+        alx_liste<AVPacket*>          L_audio_pkt;
 		
 		unsigned int size_audio_buf, sound_sample_rate, nb_channels;
 		uint8_t *audio_buf;
 		int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_size, AVPacket *pkt);
-		int get_audio_packet(AVPacket *pkt);
+		int get_audio_packet(AVPacket **pkt);
 		int put_audio_packet(AVPacket *pkt);
 		void Process_audio_packets();
 		//PacketQueue audioq;

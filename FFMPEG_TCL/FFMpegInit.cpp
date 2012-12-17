@@ -69,10 +69,21 @@ if(FFMPEG_Stream_exists(num_stream))
 	}
 
 //______________________________________________________________________________
-void FFMPEG_Commit_audio_buffers(const int num_stream) {
+const int FFMPEG_get_nb_temp_audio_buffers(const int num_stream) {
+	if(FFMPEG_Stream_exists(num_stream)) {
+		Info_for_sound_CB *ifscb = Tab_P_FFMpegVideo[num_stream]->get_Info_for_sound_CB();
+		return ifscb->last_temp - ifscb->last;
+	  }
+	return -1;
+}
+
+//______________________________________________________________________________
+const int FFMPEG_Commit_audio_buffers(const int num_stream) {
 	if(FFMPEG_Stream_exists(num_stream)) {
 		Info_for_sound_CB_Commit_buffers( Tab_P_FFMpegVideo[num_stream]->get_Info_for_sound_CB() );
+		return Tab_P_FFMpegVideo[num_stream]->get_Info_for_sound_CB()->nb;
 	  }
+	return -1;
 }
 
 //______________________________________________________________________________
@@ -394,7 +405,7 @@ const int FFMPEG_get_volume_of_canal(const int canal)           {return FSOUND_G
 void FFMPEG_set_volume_of_canal(const int canal, const int vol) {FSOUND_SetVolume(canal, vol);}
 
 //______________________________________________________________________________
-FSOUND_STREAM* FFMPEG_Get_a_new_FSOUND_STREAM( FSOUND_STREAMCALLBACK callback, int canal
+FSOUND_STREAM* FFMPEG_Get_a_new_FSOUND_STREAM( FSOUND_STREAMCALLBACK callback
                                , int lenbytes
                                , unsigned int mode
                                , int samplerate
@@ -404,13 +415,30 @@ FSOUND_STREAM* FFMPEG_Get_a_new_FSOUND_STREAM( FSOUND_STREAMCALLBACK callback, i
 												 , samplerate
 												 , userdata );
 
- if( FSOUND_Stream_GetOpenState(audio_strm) == 0)
+/* if( FSOUND_Stream_GetOpenState(audio_strm) == 0)
    {FSOUND_Stream_Play(canal, audio_strm);
-   }
+   }*/
 
  return audio_strm;
 }
 
+//______________________________________________________________________________
+//______________________________________________________________________________
+const int FFMPEG_FSOUND_STREAM_Play(Info_for_sound_CB *ifscb, FSOUND_STREAM *audio_strm, int canal)
+{	//ifscb->first_t = clock();
+	return FSOUND_Stream_Play(canal, audio_strm);
+}
+
+//______________________________________________________________________________
+//______________________________________________________________________________
+const int FFMPEG_FSOUND_STREAM_Stop(Info_for_sound_CB *ifscb, FSOUND_STREAM *audio_strm)
+{return FSOUND_Stream_Stop(audio_strm);
+}
+
+//______________________________________________________________________________
+const int FFMPEG_FSOUND_STREAM_GetOpenState(FSOUND_STREAM *audio_strm)
+{return FSOUND_Stream_GetOpenState(audio_strm);
+}
 //______________________________________________________________________________
 /*void  FFMPEG_Synchronize_audio_with_video(const int num_stream) {
 	if(FFMPEG_Stream_exists(num_stream)) {
@@ -418,31 +446,6 @@ FSOUND_STREAM* FFMPEG_Get_a_new_FSOUND_STREAM( FSOUND_STREAMCALLBACK callback, i
 		}
 }*/
 
-//______________________________________________________________________________
-const clock_t FFMPEG_get_time_t0(const int num_stream) {
-	if(FFMPEG_Stream_exists(num_stream)) {
-		 return Tab_P_FFMpegVideo[num_stream]->get_time_t0();
-		} else return 0;
-}
-
-//______________________________________________________________________________
-const double FFMPEG_get_time_t0_as_double(const int num_stream) {
-	return (double)FFMPEG_get_time_t0(num_stream);
-}
-
-//______________________________________________________________________________
-void FFMPEG_set_time_t0_now(const int num_stream) {
-	if(FFMPEG_Stream_exists(num_stream)) {
-		 Tab_P_FFMpegVideo[num_stream]->set_time_t0_now();
-		}
-}
-
-//______________________________________________________________________________
-void FFMPEG_set_time_t0_from_video(const int num_stream) {
-	if(FFMPEG_Stream_exists(num_stream)) {
-		 Tab_P_FFMpegVideo[num_stream]->set_time_t0_from_video();
-		}
-}
 
 //______________________________________________________________________________
 const double FFMPEG_get_audio_clock_start(const int num_stream) {
@@ -451,12 +454,6 @@ const double FFMPEG_get_audio_clock_start(const int num_stream) {
 		} else return 0;
 }
 
-//______________________________________________________________________________
-const double FFMPEG_get_delta_from_t0(const int num_stream) {
-	if(FFMPEG_Stream_exists(num_stream)) {
-		 return Tab_P_FFMpegVideo[num_stream]->get_delta_from_t0();
-		} else return 0;
-}
 
 //______________________________________________________________________________
 const double FFMPEG_get_first_time(const int num_stream) {

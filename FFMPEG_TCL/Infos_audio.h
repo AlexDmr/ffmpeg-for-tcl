@@ -38,10 +38,10 @@ struct Info_for_sound_CB
  int64_t video_pts;
  double time_base_audio, time_base_video, audio_clock_start;
  
- clock_t t0, last_t, first_t;
+ clock_t first_t;
  int64_t num_last_buffer;
 
- bool has_skiped, not_enough, synchronize_with_video;
+ bool has_skiped, not_enough;
 };
 
  extern "C"
@@ -63,11 +63,11 @@ struct Info_for_sound_CB
 	inline __declspec(dllexport) const int Info_for_sound_CB_First_index(Info_for_sound_CB *ifscb);
 	inline __declspec(dllexport) const int Info_for_sound_CB_Read(Info_for_sound_CB *ifscb, void *buff, const int dec_buf, const int len);
 
-	inline __declspec(dllexport) const int Info_for_sound_CB_get_audio_clock_start (Info_for_sound_CB *ifscb) {return ifscb->audio_clock_start;}
-	inline __declspec(dllexport) const int Info_for_sound_CB_get_ellapsed_seconds_from_clock_start (Info_for_sound_CB *ifscb) {return (clock() - ifscb->audio_clock_start) / CLOCKS_PER_SEC;}
+	inline __declspec(dllexport) const double Info_for_sound_CB_get_audio_clock_start (Info_for_sound_CB *ifscb) {return ifscb->audio_clock_start;}
+	inline __declspec(dllexport) const double Info_for_sound_CB_get_ellapsed_seconds_from_clock_start (Info_for_sound_CB *ifscb) {return (clock() - ifscb->audio_clock_start) / CLOCKS_PER_SEC;}
 	inline __declspec(dllexport) const int Info_for_sound_CB_get_audio_stream_start(Info_for_sound_CB *ifscb) {return ifscb->first_t;}
 	
-	inline __declspec(dllexport) const bool Info_for_sound_CB_Synch_audio_to_video(Info_for_sound_CB *ifscb, const int len);
+	//inline __declspec(dllexport) const bool Info_for_sound_CB_Synch_audio_to_video(Info_for_sound_CB *ifscb, const int len);
 
 	//inline __declspec(dllexport) const double Info_for_sound_get_Synchronisation_threshold(const Info_for_sound_CB *ifscb);
 	//inline __declspec(dllexport) void Info_for_sound_set_Synchronisation_threshold(Info_for_sound_CB *ifscb, const double v);
