@@ -1,4 +1,4 @@
-﻿La génération a démarré 17/12/2012 22:05:59.
+﻿La génération a démarré 21/12/2012 19:12:34.
      1>Projet "C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\FFMPEG_TCL.vcxproj" sur le nœud 2 (rebuild cible(s)).
      1>_PrepareForClean:
          Suppression du fichier "Release\FFMPEG_TCL.lastbuildstate".
@@ -34,8 +34,7 @@
      1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\FFMpegVideo.h(95): warning C4244: 'return' : conversion de 'const int64_t' en 'long', perte possible de données
      1>ffmpegvideo.cpp(128): warning C4018: '<' : incompatibilité signed/unsigned
      1>ffmpegvideo.cpp(401): warning C4018: '>=' : incompatibilité signed/unsigned
-     1>ffmpegvideo.cpp(427): warning C4018: '>' : incompatibilité signed/unsigned
-     1>ffmpegvideo.cpp(468): warning C4244: '=' : conversion de 'uint64_t' en 'unsigned int', perte possible de données
+     1>ffmpegvideo.cpp(472): warning C4244: '=' : conversion de 'uint64_t' en 'unsigned int', perte possible de données
          FFMPEG_TCL.cpp
          Infos_audio.cpp
        Link:
@@ -48,7 +47,7 @@
             Création de la bibliothèque C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.lib et de l'objet C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.exp
      1>FFMPEG_TCL.exp : warning LNK4070: la directive /OUT:Ffmpeg_for_tcl.dll dans .EXP est différente du nom du fichier de sortie 'C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.dll' ; directive ignorée
          Génération de code en cours
-     1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\ffmpegvideo.cpp(496): warning C4700: variable locale 'dts' non initialisée utilisée
+     1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\ffmpegvideo.cpp(500): warning C4700: variable locale 'dts' non initialisée utilisée
      1>c:\these\devcomets\ffmpeg_tcl\ffmpeg_tcl\ffmpegvideo.cpp(391): warning C4700: variable locale 'frameNr' non initialisée utilisée
          Fin de la génération du code
      1>FFMPEG_TCL.exp : warning LNK4070: la directive /OUT:Ffmpeg_for_tcl.dll dans .EXP est différente du nom du fichier de sortie 'C:\These\devComets\FFMPEG_TCL\FFMPEG_TCL\Release\FFMPEG_TCL.dll' ; directive ignorée
@@ -62,4 +61,4 @@
 
 La génération a réussi.
 
-Temps écoulé 00:00:04.16
+Temps écoulé 00:00:04.77

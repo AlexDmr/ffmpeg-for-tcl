@@ -66,7 +66,7 @@ public:
 
 	bool getImage(/*util::ByteImage & img*/void *img);
 	bool getImageNr(unsigned long frame, void *img/*util::ByteImage & img*/);
-	bool seek(unsigned long frame, bool iframe = false, SeekMode sm = ABS);
+	bool seek(unsigned long frame, bool iframe = true, SeekMode sm = ABS);
 
 	const int   numFrames()      {return nrFrames;  }
 

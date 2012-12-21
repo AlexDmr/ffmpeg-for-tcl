@@ -356,8 +356,8 @@ const bool FFMpegVideo::open(const char *fname) {
 		if( ! seek(nr) )
 			return false;
 
-		if( ! getNextFrame() )
-			return false;
+		/*if( ! getNextFrame() )
+			return false; // DEJA FAIT DANS seek*/
 
 		AVPicture frameRGB;
 		// Assign appropriate parts of buffer to image planes in pFrameRGB
@@ -373,7 +373,7 @@ const bool FFMpegVideo::open(const char *fname) {
 	}
 
 //______________________________________________________________________________
-bool FFMpegVideo::seek(unsigned long nr, bool iframe, SeekMode sm /*= ABS*/) {
+bool FFMpegVideo::seek(unsigned long nr, bool iframe /*= false*/, SeekMode sm /*= ABS*/) {
 		if( (formatCtx == 0) || (codecCtx == 0) ) {
 			printf("stream not open");
 			return false;
@@ -401,34 +401,38 @@ bool FFMpegVideo::seek(unsigned long nr, bool iframe, SeekMode sm /*= ABS*/) {
         if( frameNr >= nrFrames)
 			return false;
 
-		if( ! iframe )
-			curFrame = frameNr;
+		if( true/*! iframe*/ )
+			{curFrame = frameNr;}
+
 		AVStream *str = formatCtx->streams[ videoStream ];
 		int64_t frame_size = int64_t(str->time_base.den) * str->r_frame_rate.den
 							 / str->time_base.num / str->r_frame_rate.num;
 		int64_t timestamp = int64_t(str->time_base.den) * curFrame * str->r_frame_rate.den
 							 / str->time_base.num / str->r_frame_rate.num + str->start_time;
-
+		//printf("timestamp %d ", timestamp);
 		if( timestamp > frame_size/2 )
 			timestamp -= frame_size/2;
 		else
 			timestamp = 0;
-
+		printf("timestamp=%d ; nr=%d ; r_frame_rate.num=%d / %d r_frame_rate.den\n", timestamp, nr, str->r_frame_rate.num, str->r_frame_rate.den);
 		
+
 		if( iframe )
-		{
-			if( av_seek_frame(formatCtx, videoStream, timestamp, AVSEEK_FLAG_BACKWARD) < 0 )
+		{	//av_seek_frame_generic(
+			if( av_seek_frame(formatCtx, videoStream, timestamp/**int64_t(str->time_base.den)/str->time_base.num*/, AVSEEK_FLAG_BACKWARD) < 0 )
 				return false;
-			
+			//timestamp = nr * str->r_frame_rate.num / str->r_frame_rate.den;
 			do {
 				if( ! getNextFrame() )
 					return false;
 				//cout << frameNr << " " << curFrame << endl;
-			} while( frameNr > curFrame );
+			} while( /*frameNr > curFrame*/ 
+					this->video_pts * this->time_base_video < (double)nr * str->r_frame_rate.den / str->r_frame_rate.num);
 			curFrame = frameNr;
+			printf("video %f/%f timestamp\n", this->time_base_video*this->video_pts, (double)nr * str->r_frame_rate.den / str->r_frame_rate.num);
 		}
 		else
-		{
+		{	//avio_seek(AVIOContext *s, int64_t offset, int whence);
 			if( av_seek_frame(formatCtx, videoStream, timestamp, 
 							  AVSEEK_FLAG_ANY|AVSEEK_FLAG_BACKWARD) < 0 )
 				return false;
