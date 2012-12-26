@@ -27,10 +27,11 @@ typedef enum
 using namespace std;
 
 extern "C" {
-  #include <libavcodec\avcodec.h>
+  #include <libavcodec/avcodec.h>
   #include <libavformat/avformat.h>
   #include "libavformat/avio.h"
   #include <libswscale/swscale.h>
+  #include <libswresample/swresample.h>
 }
 
 #include <Infos_audio.h>
@@ -59,6 +60,7 @@ public:
 	inline const double get_first_time	  () const {return (double)info_for_sound_CB.first_t;}
 	const double get_delta_from_first_time() const;
 
+	const AVSampleFormat get_sample_fmt	 () const {return sample_fmt;}
 	const char* get_video_codec_name     () const {if (codec) return codec->name     ; else return "";}
 	const char* get_video_codec_long_name() const {if (codec) return codec->long_name; else return "";}
 	const char* get_audio_codec_name     () const {if (audio_codec) return audio_codec->name     ; else return "";}
@@ -119,6 +121,7 @@ public:
 
 private:
 	bool getNextFrame();
+	void init();
 
 	private:
 		AVFormatContext *formatCtx;
@@ -134,10 +137,14 @@ private:
 		double mFramerate, time_base_video;
 		unsigned int nb_total_video_frames;
 
-		AVFrame *frame;
+		AVFrame *frame, *audio_frame;
 		bool debug_mode;
 
 	   // Audio
+		AVSampleFormat sample_fmt;
+		SwrContext *audio_swr;
+		int *temp_audio_convertion_buffer, size_temp_audio_convertion_buffer;
+
 		AVCodec *audio_codec;
 		Mutex mutex_audio;
 		Info_for_sound_CB info_for_sound_CB;
@@ -146,7 +153,13 @@ private:
 		
 		unsigned int size_audio_buf, sound_sample_rate, nb_channels;
 		uint8_t *audio_buf;
-		int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_size, AVPacket *pkt);
+		uint8_t *dst_data_for_convert[1];
+		unsigned int size_buffer_for_convert;
+		
+		int audio_decode_frame( AVCodecContext *aCodecCtx/*, uint8_t *audio_buf, int buf_size*/
+							  , int *got_frame
+							  , uint8_t **data, int *data_size
+							  , AVPacket *pkt);
 		int get_audio_packet(AVPacket **pkt);
 		int put_audio_packet(AVPacket *pkt);
 		void Process_audio_packets();

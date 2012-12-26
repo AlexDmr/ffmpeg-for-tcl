@@ -24,6 +24,7 @@
   #pragma comment (lib, "avformat.lib" )
   #pragma comment (lib, "avutil.lib" )
   #pragma comment (lib, "swscale.lib" )
+  #pragma comment (lib, "swresample" )
 
   #pragma comment (lib, "fmodvc.lib" )
   #pragma comment (lib, "tcl85.lib" )
@@ -34,49 +35,40 @@
 #endif
 
  //______________________________________________________________________________
-   FFMpegVideo::FFMpegVideo() : started(false), nrFrames(0), curFrame(0), nb_total_video_frames(0) {
+void FFMpegVideo::init() {
 		formatCtx = 0;
 		codecCtx = 0;
 		img_convert_ctx = NULL;
 		Info_for_sound_CB_Init(&info_for_sound_CB, &mutex_audio);
 		debug_mode = false; audio_buf = (uint8_t*)NULL; Audio_buffer_size((AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2);
           sound_sample_rate = 0; nb_channels = 0;
-		frame = 0;
+		frame = audio_frame = NULL;
 		initial_video_pts = 0xFFFFFFFF;
+		this->audio_swr = NULL;
+		this->dst_data_for_convert[0] = NULL;
+		this->size_buffer_for_convert = 0;
+		this->size_temp_audio_convertion_buffer = 65536;
+		this->temp_audio_convertion_buffer      = (int*)malloc( this->size_temp_audio_convertion_buffer );
 
 		ffmpeg_init();
 
 		id = "avi";
+}
+
+ //______________________________________________________________________________
+   FFMpegVideo::FFMpegVideo() : started(false), nrFrames(0), curFrame(0), nb_total_video_frames(0) {
+	   init();
 	}
 
 //______________________________________________________________________________
 	FFMpegVideo::FFMpegVideo(const char *fname) : started(false), nrFrames(0), curFrame(0), nb_total_video_frames(0) {
-		formatCtx = 0;
-		codecCtx = 0;
-		img_convert_ctx = NULL;
-		Info_for_sound_CB_Init(&info_for_sound_CB, &mutex_audio);
-		debug_mode = false; audio_buf = (uint8_t*)NULL; Audio_buffer_size((AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2);
-		  sound_sample_rate = 0; nb_channels = 0;
-		frame = 0;
-		initial_video_pts = 0xFFFFFFFF;
-		
-		ffmpeg_init();
-
+		init();
 		open( fname );	
 	}
 
 //______________________________________________________________________________
 	FFMpegVideo::FFMpegVideo(const std::string & fname) : started(false), nrFrames(0), curFrame(0), nb_total_video_frames(0) {
-		formatCtx = 0;
-		codecCtx = 0;
-		img_convert_ctx = NULL;
-		Info_for_sound_CB_Init(&info_for_sound_CB, &mutex_audio);
-		debug_mode = false; audio_buf = (uint8_t*)NULL; Audio_buffer_size((AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2);
-		  sound_sample_rate = 0; nb_channels = 0;
-		frame = 0;
-		
-		ffmpeg_init();
-
+		init();
 		open( fname.c_str() );
 	}
 
@@ -124,7 +116,7 @@ const bool FFMpegVideo::open(const char *fname) {
 		// XXX Trouver un moyen d'avoir plusieurs flux en simultané
 		// XXX par exemple avec des tableau statiques
 		initial_video_pts = 0xFFFFFFFF;
-		videoStream = -1; audioStream = -1;
+		videoStream = -1; audioStream = -1; sample_fmt = AV_SAMPLE_FMT_NONE;
 		for(int i = 0; i < formatCtx->nb_streams; ++i) {
 			AVCodecContext *enc = formatCtx->streams[i]->codec;
 			if( enc->codec_type == AVMEDIA_TYPE_VIDEO/*CODEC_TYPE_VIDEO*/ && videoStream == -1) {
@@ -133,6 +125,7 @@ const bool FFMpegVideo::open(const char *fname) {
 			 }
 			if( enc->codec_type == AVMEDIA_TYPE_AUDIO/*CODEC_TYPE_AUDIO*/ && audioStream == -1) {
 			  audioStream = i;
+			  sample_fmt  = enc->sample_fmt;
 			  std::cout << "audioStream : " << audioStream << "\n";
 			 }
 		}
@@ -153,6 +146,18 @@ const bool FFMpegVideo::open(const char *fname) {
 		  printf("info_for_sound_CB.time_base_audio = %f\n", info_for_sound_CB.time_base_audio);
 		  printf("num / denum : %d / %d\n\n", audio_str->time_base.num, audio_str->time_base.den);
 
+		  // Is there a need for audio convertion?
+		  if(this->audio_swr) {swr_free( &(this->audio_swr) );}
+		  if(sample_fmt != AV_SAMPLE_FMT_S16) {
+			  this->audio_swr = swr_alloc();
+			  this->audio_swr = swr_alloc_set_opts( this->audio_swr
+								, audio_codecCtx->channel_layout, AV_SAMPLE_FMT_S16, sound_sample_rate
+                                , audio_codecCtx->channel_layout, sample_fmt, sound_sample_rate
+                                , 0, NULL);
+			  int ret = swr_init( this->audio_swr );
+			  if(ret < 0) printf("\n_-_-_-_-_-_-_-_-> ERROT initialiazing swr_convert -> %d\n\n", ret);
+				else printf("\nswr_nit OK -> %d\n\n", ret);
+			}
 		  //info_for_sound_CB.time_base_audio   = audio_str->time_base.num;
 		  //XXXpacket_queue_init(&audioq);str->r_frame_rate.num / str->time_base.num
 		 }
@@ -276,6 +281,9 @@ const bool FFMpegVideo::open(const char *fname) {
 			av_close_input_file(formatCtx);
 			formatCtx = 0;
 		}
+	    if(this->audio_swr) {
+			swr_free( &(this->audio_swr) );
+	    }
 	}
 
 //______________________________________________________________________________
@@ -290,7 +298,8 @@ const bool FFMpegVideo::open(const char *fname) {
 		if( codecCtx == 0 )
 			printf("No video opened!");
 
-		frame=avcodec_alloc_frame();
+		frame       = avcodec_alloc_frame();
+		audio_frame = avcodec_alloc_frame();
 		if( frame == 0 )
 			printf("Failed to allocate frame");
 
@@ -311,8 +320,9 @@ const bool FFMpegVideo::open(const char *fname) {
 
 
 		// Free the YUV frame
-		av_free(frame);
-		frame = 0;
+		if(frame)		av_free(frame);
+		if(audio_frame) av_free(audio_frame);
+		frame = audio_frame = NULL;
 	}
 
 //______________________________________________________________________________
@@ -511,19 +521,40 @@ bool FFMpegVideo::seek(unsigned long nr, bool iframe /*= false*/, SeekMode sm /*
 
 //______________________________________________________________________________
 int FFMpegVideo::audio_decode_frame( AVCodecContext *aCodecCtx
-								   , uint8_t *audio_buf
-								   , int buf_size
+								   //, uint8_t *audio_buf
+								   //, int buf_size
+								   , int *got_frame
+								   , uint8_t **data, int *data_size
 								   , AVPacket *pkt) {
- int data_size = buf_size
-   , audio_pkt_size = pkt->size;
+ int ret;
  uint8_t *audio_pkt_data = pkt->data;
-// int len1 = avcodec_decode_audio2( aCodecCtx, (int16_t *)audio_buf, &data_size 
-//				                 , audio_pkt_data, audio_pkt_size);
- int len1 = avcodec_decode_audio3( aCodecCtx, (int16_t *)audio_buf, &data_size, pkt);
 
- if(len1 == -1) {if(debug_mode) cout << "\n____Erreur avcodec_decode_audio!\n"; return 0;}
+ // int len1 = avcodec_decode_audio3( aCodecCtx, (int16_t *)audio_buf, &data_size, pkt);
+ ret        = avcodec_decode_audio4(aCodecCtx, audio_frame, got_frame, pkt);
+ *data_size = av_samples_get_buffer_size( NULL
+									, av_get_channel_layout_nb_channels(audio_codecCtx->channel_layout)
+									, audio_frame->nb_samples
+									, AV_SAMPLE_FMT_S16 // audio_codecCtx->sample_fmt
+									, 1);// printf("ret=%d; ", data_size);
+ if(this->audio_swr && *got_frame) {
+	 if(this->size_buffer_for_convert < *data_size) {
+		 if(this->dst_data_for_convert[0]) {av_free(this->dst_data_for_convert[0]); this->dst_data_for_convert[0] = NULL;}
+		 ret = av_samples_alloc( this->dst_data_for_convert, NULL
+							   , audio_codecCtx->channels, audio_frame->nb_samples*2, AV_SAMPLE_FMT_S16, 0);
+		 this->size_buffer_for_convert = *data_size;
+		 printf("_____________________\ndata_size=%d; ret=%d; nb_samples=%d;\n", *data_size, ret, audio_frame->nb_samples);
+		}
+	 ret = swr_convert( this->audio_swr
+					  , this->dst_data_for_convert, audio_frame->nb_samples
+					  , (const uint8_t**)audio_frame->data, audio_frame->nb_samples
+					  ); //printf("swr_convert -> %d\n", ret);
+	 *data = this->dst_data_for_convert[0];
+ } else {*data = audio_frame->data[0];
+		}
+
+ //if(len1 == -1) {if(debug_mode) cout << "\n____Erreur avcodec_decode_audio!\n"; return 0;}
  //if(debug_mode) cout << "\n____audio_decode_frame(" << buf_size << ", " << data_size << ", " << len1 << ")\n";
- return data_size;
+ return ret;
 }
 
 //______________________________________________________________________________
@@ -551,18 +582,21 @@ void FFMpegVideo::Process_audio_packets()
  alx_element_liste<AVPacket*> *it     
                             , *it_fin = L_audio_pkt.Fin();
  AVPacket *pkt;
+ int got_frame, data_size;
+ uint8_t *data;
 
 // if(debug_mode) cout << "\nProcess packets...";
  for(it = L_audio_pkt.Premier();it != it_fin; it = it->svt)
   {pkt = it->E();
-   int audio_size = audio_decode_frame(audio_codecCtx, audio_buf, size_audio_buf, pkt);
-	 if(audio_size < 0) {if(debug_mode) cout << "_"; continue;}
-   if(debug_mode) cout << "*(" << audio_size << ") ";
-   int64_t pts = pkt->pts
-	     , dts = pkt->dts;
-     
-   Info_for_sound_CB_Put_New(&info_for_sound_CB, audio_buf, audio_size, pts, dts, pkt->duration);   
+   audio_decode_frame(audio_codecCtx/*, audio_buf, size_audio_buf,*/, &got_frame, &data, &data_size, pkt);
+		if(!got_frame) continue;
+		if(data_size < 0) {if(debug_mode) cout << "Error av_samples_get_buffer_size -> " << data_size << endl; continue;}
+   if(debug_mode) cout << "*(" << data_size << ") ";
+   Info_for_sound_CB_Put_New( &info_for_sound_CB
+							, data, data_size //, audio_frame->data[0], data_size
+							, pkt->pts, pkt->dts, pkt->duration);   
   }
+
 // if(debug_mode) cout << "End of processing\n";
  for(it = L_audio_pkt.Premier();it != it_fin; it = it->svt)
   {pkt = it->E();
